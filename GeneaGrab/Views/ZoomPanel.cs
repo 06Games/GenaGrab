@@ -25,6 +25,8 @@ namespace GeneaGrab.Views
         private bool initialized;
         private Control? _child;
 
+        public double ZoomMultiplier { get; set; } = 1.5;
+        
         /// <summary>The user has moved the child</summary>
         public event Action<double, double>? PositionChanged;
         /// <summary>The user has changed the zoom</summary>
@@ -111,7 +113,7 @@ namespace GeneaGrab.Views
             var position = new Point(tt.X, tt.Y);
 
             var delta = e.Delta.Y;
-            var zoom = 1.5;
+            var zoom = ZoomMultiplier;
             if (delta < 0) zoom = 1 / zoom;
             if (st.ScaleX * zoom < .1 || st.ScaleX * zoom > 10) return;
 

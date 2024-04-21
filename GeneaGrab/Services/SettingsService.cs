@@ -44,6 +44,9 @@ public class SettingsData
     [JsonProperty(nameof(Credentials))] private Dictionary<string, Credentials> credentials = new();
     [JsonIgnore] public Dictionary<string, Credentials> Credentials { get => credentials; set => Set(ref credentials, value); }
 
+    [JsonProperty(nameof(ZoomMultiplier))] private double zoomMultiplier = 1.5;
+    [JsonIgnore] public double ZoomMultiplier { get => zoomMultiplier; set => Set(ref zoomMultiplier, value); }
+
     private static void Set<T>(ref T storage, T value)
     {
         if (Equals(storage, value)) return;

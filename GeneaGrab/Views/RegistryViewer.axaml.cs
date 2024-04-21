@@ -232,6 +232,7 @@ namespace GeneaGrab.Views
             pageList.Selection.Select(Frame.FrameNumber - 1);
             pageList.ScrollIntoView(Frame.FrameNumber - 1);
             ImagePanel.Reset();
+            ImagePanel.ZoomMultiplier = SettingsService.SettingsData.ZoomMultiplier;
             OnPropertyChanged(nameof(image));
             OnPropertyChanged(nameof(Registry));
             OnPropertyChanged(nameof(Frame));
