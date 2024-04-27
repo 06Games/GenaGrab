@@ -3,11 +3,11 @@
              xmlns:helpers="clr-namespace:GeneaGrab.Helpers"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
              x:Class="GeneaGrab.App">
-    
+
     <Application.Resources>
-        <helpers:BitmapAssetValueConverter x:Key="VariableImage"/>
+        <helpers:BitmapAssetValueConverter x:Key="VariableImage" />
         <helpers:JoinConvertor x:Key="JoinConverter" />
-        <helpers:ResourceConverter x:Key="Translate"/>
+        <helpers:ResourceConverter x:Key="Translate" />
     </Application.Resources>
 
     <Application.Styles>
