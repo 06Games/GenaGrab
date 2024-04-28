@@ -80,39 +80,41 @@
                     </Style>
                 </controls:NavigationView.Styles>
                 <controls:NavigationView.MenuItems>
-                    <controls:NavigationViewItem Content="Menu Item1" Tag="SamplePage1" IconSource="Library" />
+                    <controls:NavigationViewItem Content="Menu Item1" Tag="Info" IconSource="Library" />
                     <controls:NavigationViewItem Content="Index" Tag="Index" IconSource="ContactInfoFilled" />
                 </controls:NavigationView.MenuItems>
 
                 <Grid FlowDirection="LeftToRight" Margin="15" RowDefinitions="*,150" Name="SidePanel">
-                    <ScrollViewer x:Name="SideContent">
-                        <StackPanel Spacing="15">
-                            <StackPanel Name="Info">
-                                <TextBlock FontSize="18" FontWeight="Medium" Text="{Binding Registry.Location, FallbackValue='', Converter={StaticResource JoinConverter}}" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Registry.Types, FallbackValue='', ConverterParameter='Core@Registry.Type', Converter={StaticResource JoinConverter}}" FontSize="18"
-                                           TextWrapping="Wrap" Margin="0 12 0 0" />
-                                <TextBlock TextWrapping="Wrap">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0} - {1}">
-                                            <Binding Path="Registry.From" FallbackValue="?" />
-                                            <Binding Path="Registry.To" FallbackValue="?" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                                <TextBlock Text="{Binding Registry.Title, FallbackValue=''}" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Registry.Subtitle, FallbackValue=''}" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Registry.Author, FallbackValue=''}" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Registry.Notes, FallbackValue=''}" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Registry.CallNumber, FallbackValue=''}" TextWrapping="Wrap" Margin="0 12 0 0" />
-                            </StackPanel>
+                    <ScrollViewer >
+                        <Panel Name="SideContent">
+                            <StackPanel Tag="Info" Spacing="15">
+                                <StackPanel>
+                                    <TextBlock FontSize="18" FontWeight="Medium" Text="{Binding Registry.Location, FallbackValue='', Converter={StaticResource JoinConverter}}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Registry.Types, FallbackValue='', ConverterParameter='Core@Registry.Type', Converter={StaticResource JoinConverter}}" FontSize="18"
+                                               TextWrapping="Wrap" Margin="0 12 0 0" />
+                                    <TextBlock TextWrapping="Wrap">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0} - {1}">
+                                                <Binding Path="Registry.From" FallbackValue="?" />
+                                                <Binding Path="Registry.To" FallbackValue="?" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Registry.Title, FallbackValue=''}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Registry.Subtitle, FallbackValue=''}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Registry.Author, FallbackValue=''}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Registry.Notes, FallbackValue=''}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Registry.CallNumber, FallbackValue=''}" TextWrapping="Wrap" Margin="0 12 0 0" />
+                                </StackPanel>
 
-                            <StackPanel>
-                                <TextBlock Margin="0,25,0,5" FontSize="16" Text="{x:Static strings:UI.Registry_Notes}" />
-                                <TextBox Name="FrameNotes" Text="{Binding Frame.Notes, Mode=TwoWay, FallbackValue=''}" Height="100" FontSize="12" Background="Transparent" BorderBrush="Transparent"
-                                         AcceptsReturn="True" Padding="0" />
+                                <StackPanel>
+                                    <TextBlock Margin="0,25,0,5" FontSize="16" Text="{x:Static strings:UI.Registry_Notes}" />
+                                    <TextBox Name="FrameNotes" Text="{Binding Frame.Notes, Mode=TwoWay, FallbackValue=''}" Height="100" FontSize="12" Background="Transparent"
+                                             BorderBrush="Transparent" AcceptsReturn="True" Padding="0" />
+                                </StackPanel>
                             </StackPanel>
-
-                            <StackPanel Margin="0,25,0,5" x:Name="IndexPanel">
+                            
+                            <StackPanel Tag="Index">
                                 <Grid ColumnDefinitions="*,22">
                                     <TextBlock Grid.Column="0" FontSize="16" Text="Index" />
                                     <Button Grid.Column="1" Content="+" Padding="5,0,5,1" Click="AddIndex" />
@@ -120,14 +122,14 @@
                                 <ListBox MaxHeight="500" Name="RecordList">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="indexing:Record">
-                                            <Grid Width="200" RowDefinitions="*,*,*,*" ColumnDefinitions="100,100">
+                                            <Grid RowDefinitions="*,*,*,*" ColumnDefinitions="100,100">
                                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Id}" FontSize="12" />
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
                             </StackPanel>
-                        </StackPanel>
+                        </Panel>
                     </ScrollViewer>
 
                     <StackPanel Spacing="15" VerticalAlignment="Bottom" Grid.Row="1">

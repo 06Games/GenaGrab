@@ -76,6 +76,14 @@ namespace GeneaGrab.Views
                     if (frame != null) _ = ChangePageAsync(frame);
                 };
 
+            SideNav.SelectionChanged += (s, e) =>
+            {
+                var tag = SideNav.SelectedItem is NavigationViewItem item ? item.Tag : null;
+                foreach (var child in SideContent.Children)
+                    child.IsVisible = child.Tag == tag;
+            };
+            SideNav.SelectedItem = SideNav.MenuItems.FirstOrDefault();
+
             FrameNotes.TextChanging += (_, _) => Task.Run(() => SaveAsync(Frame).ContinueWith(_ =>
             {
                 if (Frame is null) return;
