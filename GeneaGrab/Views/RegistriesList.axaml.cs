@@ -41,7 +41,7 @@ public partial class RegistriesPage : Page, ITabPage
         Items.Clear();
 
         using var db = new DatabaseContext();
-        foreach (var registry in db.Registries.Where(r => r.ProviderId == Provider.Id))
+        foreach (var registry in db.Registries.Where(r => r.ProviderId == Provider.Id).ToList())
         {
             var parent = Items;
             foreach (var location in registry.Location)

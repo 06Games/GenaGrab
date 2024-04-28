@@ -156,7 +156,7 @@ namespace GeneaGrab.Views
             switch (parameter)
             {
                 case RegistryInfo infos:
-                    Registry = db.Registries.Include(r => r.Frames).FirstOrDefault(r => r.ProviderId == infos.ProviderId && r.Id == infos.RegistryId)!;
+                    Registry = await db.Registries.Where(r => r.ProviderId == infos.ProviderId && r.Id == infos.RegistryId).Include(r => r.Frames).FirstAsync();
                     Frame = Registry.Frames.FirstOrDefault(f => f.FrameNumber == infos.PageNumber) ?? Registry.Frames.FirstOrDefault();
                     break;
                 case Uri url:
@@ -170,7 +170,7 @@ namespace GeneaGrab.Views
                         }
                     if (provider != null && info != null)
                     {
-                        var registry = db.Registries.Include(r => r.Frames).FirstOrDefault(r => r.ProviderId == info.ProviderId && r.Id == info.RegistryId);
+                        var registry = db.Registries.Where(r => r.ProviderId == info.ProviderId && r.Id == info.RegistryId).Include(r => r.Frames).FirstOrDefault();
                         if (registry is null)
                         {
                             AuthenticateIfNeeded(provider, nameof(Provider.Infos));
