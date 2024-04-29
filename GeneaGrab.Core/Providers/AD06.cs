@@ -112,8 +112,8 @@ namespace GeneaGrab.Core.Providers
                 "FRAD006_HYPOTHEQUES" => ("(?<callnum>.+) +- +(?<title>.+) +-", new[] { RegistryType.Catalogue }),
                 "FRAD006_HYPOTHEQUES_ACTES_TRANSLATIFS" => (@"(?<callnum>.+?) ?- +(?<author>.+?) ?\.?- +(?<title>.+?) ?- +(?<from>.+?)(-(?<to>.+))?$", new[] { RegistryType.Engrossments }),
                 "FRAD006_REPERTOIRE_NOTAIRES" => ("(?<callnum>.+) +- +(?<title>.+)", new[] { RegistryType.Notarial }),
-                "FRAD006_3E" => (@"(?<callnum>3 E [\d ]+) (?<title>.*)\. (- )?(?<from>.*)-(?<to>.*)", new[] { RegistryType.Notarial }), // Notaire
-                "FRAD006_C" => (@"(?<callnum>C [\d ]+) (?<title>.*)\. (- )?(?<from>.*)-(?<to>.*)", new[] { RegistryType.Other }), // Archives anciennes
+                "FRAD006_3E" => (@"(?<callnum>3 E [\d ]+?) *- *(?<title>.*)\. *- *(?<from>.*?) *- *(?<to>.*?) *$", new[] { RegistryType.Notarial }), // Notaire
+                "FRAD006_C" => (@"(?<callnum>C [\d ]+?) *- *(?<title>.*)\. *- *(?<from>.*?) *- *(?<to>.*?) *$", new[] { RegistryType.Other }), // Archives anciennes
                 "FRAD006_ARMOIRIES" => ("(?<callnum>.+) +- +(?<title>.+)", new[] { RegistryType.Other }),
                 "FRAD006_OUVRAGES" => ("(?<callnum>.+) +- +(?<title>.+)", new[] { RegistryType.Book }),
                 "FRAD006_BN_SOURCES_IMPRIMES" => ("(?<title>.+)", new[] { RegistryType.Book }),
