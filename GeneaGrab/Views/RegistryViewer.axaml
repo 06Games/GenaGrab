@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition MinWidth="230" MaxWidth="260" />
+            <ColumnDefinition MinWidth="250" MaxWidth="350" />
         </Grid.ColumnDefinitions>
 
         <RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="ViewerRelativePanel">
