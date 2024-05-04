@@ -56,23 +56,24 @@ namespace GeneaGrab.Core.Providers
             // ReSharper disable StringLiteralTypo
             foreach (var metadata in manifest.MetaData)
             {
+                var value = Regex.Replace(metadata.Value, "<[^>]*>", ""); // Remove HTML tags
                 switch (metadata.Key)
                 {
                     case "Commune":
                     case "Commune d’exercice du notaire":
                     case "Lieu":
                     case "Lieu d'édition":
-                        location = ToTitleCase(metadata.Value.ToLower());
+                        location = ToTitleCase(value.ToLower());
                         break;
                     case "Paroisse":
                     case "Complément de lieu":
-                        district = ToTitleCase(metadata.Value.ToLower());
+                        district = ToTitleCase(value.ToLower());
                         break;
                     case "Date":
                     case "Date de l'acte":
                     case "Année (s)":
                     {
-                        var dates = metadata.Value.Split('-');
+                        var dates = value.Split('-');
                         registry.From = dates.FirstOrDefault()?.Trim();
                         registry.To = dates.LastOrDefault()?.Trim();
                         break;
@@ -80,24 +81,24 @@ namespace GeneaGrab.Core.Providers
                     case "Typologie":
                     case "Type de document":
                     case "Type d'acte":
-                        registry.Types = registry.Types.Union(GetTypes(metadata.Value)).ToArray();
+                        registry.Types = registry.Types.Union(GetTypes(value)).ToArray();
                         break;
                     case "Analyse":
-                        registry.Title = metadata.Value;
+                        registry.Title = value;
                         break;
                     case "Folio":
                     case "Volume":
-                        registry.Subtitle = metadata.Value;
+                        registry.Subtitle = value;
                         break;
                     case "Auteur":
                     case "Photographe":
                     case "Sigillant":
                     case "Bureau":
                     case "Présentation du producteur":
-                        registry.Author = metadata.Value;
+                        registry.Author = value;
                         break;
                     default:
-                        notes.Add($"{metadata.Key}: {metadata.Value}");
+                        notes.Add($"{metadata.Key}: {value}");
                         break;
                 }
             }
