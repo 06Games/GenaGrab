@@ -49,7 +49,8 @@ namespace GeneaGrab.Core.Providers
             registry.Frames = iiif.Sequences.First().Canvases.Select(p => new Frame
             {
                 FrameNumber = int.Parse(p.Label.Substring("pag. ".Length)),
-                DownloadUrl = p.Images.First().ServiceId
+                DownloadUrl = p.Images.First().ServiceId,
+                ArkUrl = p.Id
             }).ToArray();
 
             var dates = iiif.MetaData["Datazione"].Split(new[] { " - " }, StringSplitOptions.RemoveEmptyEntries);
@@ -72,7 +73,7 @@ namespace GeneaGrab.Core.Providers
             }
         }
 
-        public override Task<string> Ark(Frame page) => Task.FromResult($"{page.Registry?.ArkURL} (p{page.FrameNumber})");
+        public override Task<string> Ark(Frame page) => Task.FromResult(page.ArkUrl ?? $"{page.Registry?.ArkURL} (p{page.FrameNumber})");
 
         public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
         {
