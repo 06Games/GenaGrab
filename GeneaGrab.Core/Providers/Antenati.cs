@@ -17,21 +17,35 @@ namespace GeneaGrab.Core.Providers
         public override string Id => "Antenati";
         public override string Url => "https://antenati.cultura.gov.it/";
 
-        public override async Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
-        {
-            if (url.Host != "dam-antenati.san.beniculturali.it" || !url.AbsolutePath.StartsWith("/antenati/containers/")) return null;
 
-            return new RegistryInfo(this, Regex.Match(url.AbsolutePath, "$/antenati/containers/(?<id>.*?)/").Groups["id"].Value);
+
+        private const string Domain = "dam-antenati.cultura.gov.it";
+        private HttpClient _httpClient;
+        private HttpClient HttpClient
+        {
+            get
+            {
+                if (_httpClient != null) return _httpClient;
+
+                _httpClient = new HttpClient();
+                _httpClient.DefaultRequestHeaders.Add("Referer", Url);
+                return _httpClient;
+            }
+        }
+
+        public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
+        {
+            if (url.Host != Domain || !url.AbsolutePath.StartsWith("/antenati/containers/")) return Task.FromResult<RegistryInfo>(null);
+
+            return Task.FromResult(new RegistryInfo(this, Regex.Match(url.AbsolutePath, "^/antenati/containers/(?<id>.*?)/").Groups["id"].Value));
         }
 
         public override async Task<(Registry, int)> Infos(Uri url)
         {
-            var registry = new Registry(this, Regex.Match(url.AbsolutePath, "/antenati/containers/(?<id>.*?)/").Groups["id"]?.Value);
-            registry.URL = $"https://dam-antenati.san.beniculturali.it/antenati/containers/{registry.Id}";
+            var registry = new Registry(this, Regex.Match(url.AbsolutePath, "^/antenati/containers/(?<id>.*?)/").Groups["id"]?.Value);
+            registry.URL = $"https://{Domain}/antenati/containers/{registry.Id}";
 
-            var client = new HttpClient();
-            var iiif = new Iiif(await client.GetStringAsync($"{registry.URL}/manifest"));
-
+            var iiif = new Iiif(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
             registry.Frames = iiif.Sequences.First().Canvases.Select(p => new Frame
             {
                 FrameNumber = int.Parse(p.Label.Substring("pag. ".Length)),
@@ -58,7 +72,7 @@ namespace GeneaGrab.Core.Providers
             }
         }
 
-        public override Task<string> Ark(Frame page) => Task.FromResult($"{page.Registry.ArkURL} (p{page.FrameNumber})");
+        public override Task<string> Ark(Frame page) => Task.FromResult($"{page.Registry?.ArkURL} (p{page.FrameNumber})");
 
         public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
         {
@@ -66,14 +80,13 @@ namespace GeneaGrab.Core.Providers
             if (stream != null) return stream;
 
             progress?.Invoke(Progress.Unknown);
-            var client = new HttpClient();
             var size = scale switch
             {
                 Scale.Thumbnail => "!512,512",
                 Scale.Navigation => "!2048,2048",
                 _ => "max"
             };
-            var image = await Image.LoadAsync(await client.GetStreamAsync(Iiif.GenerateImageRequestUri(page.DownloadUrl, size: size)).ConfigureAwait(false)).ConfigureAwait(false);
+            var image = await Image.LoadAsync(await HttpClient.GetStreamAsync(Iiif.GenerateImageRequestUri(page.DownloadUrl, size: size)).ConfigureAwait(false)).ConfigureAwait(false);
             page.ImageSize = scale;
             progress?.Invoke(Progress.Finished);
 
