@@ -124,8 +124,13 @@ namespace GeneaGrab.Views
             if (tab != null)
             {
                 var currentTab = NavigationService.CurrentTab;
-                NavigationService.OpenTab(tab);
-                if (NavigationService.Frame?.Content is not RegistryViewer viewer) return;
+                var viewer = await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    NavigationService.OpenTab(tab);
+                    return NavigationService.Frame?.Content as RegistryViewer;
+                });
+
+                if (viewer == null) return;
                 await viewer.ChangePageAsync(Frame!.FrameNumber);
                 if (!ReferenceEquals(viewer, this))
                 {
@@ -209,7 +214,7 @@ namespace GeneaGrab.Views
             Frame = page;
             AuthenticateIfNeeded(Provider, nameof(Provider.GetFrame));
             var image = await Provider.GetFrame(page, Scale.Navigation, TrackProgress);
-            RefreshView(image);
+            await Dispatcher.UIThread.InvokeAsync(() => RefreshView(image));
             await SaveAsync(Frame);
         }
         private void RefreshView(Stream? img = null)
