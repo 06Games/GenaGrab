@@ -15,11 +15,13 @@ namespace GeneaGrab.Core.Providers
     public class Antenati : Provider
     {
         public override string Id => "Antenati";
-        public override string Url => "https://antenati.cultura.gov.it/";
+        public override string Url => $"https://{FrontDomain}/";
 
 
 
-        private const string Domain = "dam-antenati.cultura.gov.it";
+        private const string FrontDomain = "antenati.cultura.gov.it";
+        private const string ApiDomain = "dam-antenati.cultura.gov.it";
+
         private HttpClient _httpClient;
         private HttpClient HttpClient
         {
@@ -35,17 +37,42 @@ namespace GeneaGrab.Core.Providers
 
         private static readonly string[] NotesMetadata = { "Conservato da", "Lingua" };
 
-        public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
+        private static async Task<(string registryId, string registrySignature)> RetrieveRegistryInfosFromPage(Uri url)
         {
-            if (url.Host != Domain || !url.AbsolutePath.StartsWith("/antenati/containers/")) return Task.FromResult<RegistryInfo>(null);
-
-            return Task.FromResult(new RegistryInfo(this, Regex.Match(url.AbsolutePath, "^/antenati/containers/(?<id>.*?)/").Groups["id"].Value));
+            string registryId = null;
+            string registrySignature = null;
+            switch (url.Host)
+            {
+                case ApiDomain when url.AbsolutePath.StartsWith("/antenati/containers/"):
+                    registryId = Regex.Match(url.AbsolutePath, "^/antenati/containers/(?<id>.*?)/").Groups.TryGetValue("id");
+                    break;
+                case FrontDomain when url.AbsolutePath.StartsWith("/ark:/"):
+                    var client = new HttpClient();
+                    var response = await client.GetStringAsync(url);
+                    registryId = Regex.Match(response, "let windowsId = '(?<firstPageId>.*?)';").Groups.TryGetValue("firstPageId");
+                    registrySignature = ExtractDetailFromHtmlHeader(response, "Segnatura attuale");
+                    break;
+            }
+            return (registryId, registrySignature);
         }
+
+        public override async Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
+        {
+            var (registryId, _) = await RetrieveRegistryInfosFromPage(url);
+            return registryId == null ? null : new RegistryInfo(this, registryId) { FrameArkUrl = url.GetLeftPart(UriPartial.Path) };
+        }
+
+        private static string ExtractDetailFromHtmlHeader(string html, string key)
+            => Regex.Match(html, @$"<p>\s*<strong>{key}:</strong>\s*(<.*?>\s*)*(?<value>\S*?)\s*(</.*?>\s*)*</p>").Groups.TryGetValue("value");
 
         public override async Task<(Registry, int)> Infos(Uri url)
         {
-            var registry = new Registry(this, Regex.Match(url.AbsolutePath, "^/antenati/containers/(?<id>.*?)/").Groups["id"]?.Value);
-            registry.URL = $"https://{Domain}/antenati/containers/{registry.Id}";
+            var (registryId, registrySignature) = await RetrieveRegistryInfosFromPage(url);
+            var registry = new Registry(this, registryId)
+            {
+                URL = $"https://{ApiDomain}/antenati/containers/{registryId}",
+                CallNumber = registrySignature
+            };
 
             var iiif = new Iiif(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
             registry.Frames = iiif.Sequences.First().Canvases.Select(p => new Frame
