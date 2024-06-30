@@ -12,6 +12,7 @@
 
         public string ProviderId { get; }
         public string RegistryId { get; }
-        public int PageNumber { get; init; } = 1;
+        public int? PageNumber { get; init; }
+        public string FrameArkUrl { get; init; }
     }
 }

@@ -158,44 +158,34 @@ namespace GeneaGrab.Views
 
         private async Task<(bool success, bool inRam)> LoadRegistryAsync(object parameter)
         {
-            var inRam = false;
+            if (parameter is not RegistryInfo and not Uri) return (Registry != null && Frame != null, true);
+
+            var info = parameter as RegistryInfo;
+            var uri = parameter as Uri;
+            if (info == null && uri != null)
+                foreach (var p in Data.Providers.Values)
+                    if ((info = await p.GetRegistryFromUrlAsync(uri)) != null)
+                        break;
+            if (info == null) return (false, false);
 
             await using var db = new DatabaseContext();
-            switch (parameter)
+            var registry = db.Registries.Where(r => r.ProviderId == info.ProviderId && r.Id == info.RegistryId).Include(r => r.Frames).FirstOrDefault();
+            if (registry is null && uri != null)
             {
-                case RegistryInfo infos:
-                    Registry = await db.Registries.Where(r => r.ProviderId == infos.ProviderId && r.Id == infos.RegistryId).Include(r => r.Frames).FirstAsync();
-                    Frame = Registry.Frames.FirstOrDefault(f => f.FrameNumber == infos.PageNumber) ?? Registry.Frames.FirstOrDefault();
-                    break;
-                case Uri url:
-                    RegistryInfo? info = null;
-                    Provider? provider = null;
-                    foreach (var p in Data.Providers.Values)
-                        if ((info = await p.GetRegistryFromUrlAsync(url)) != null)
-                        {
-                            provider = p;
-                            break;
-                        }
-                    if (provider != null && info != null)
-                    {
-                        var registry = db.Registries.Where(r => r.ProviderId == info.ProviderId && r.Id == info.RegistryId).Include(r => r.Frames).FirstOrDefault();
-                        if (registry is null)
-                        {
-                            AuthenticateIfNeeded(provider, nameof(Provider.Infos));
-                            var data = await provider.Infos(url);
-                            registry = data.registry;
-                            db.Registries.Add(registry);
-                            await db.SaveChangesAsync();
-                        }
-                        Registry = registry;
-                        Frame = Registry.Frames.FirstOrDefault(f => f.FrameNumber == info.PageNumber) ?? Registry.Frames.FirstOrDefault();
-                    }
-                    break;
-                default:
-                    inRam = true;
-                    break;
+                var provider = Data.Providers[info.ProviderId];
+                AuthenticateIfNeeded(provider, nameof(Provider.Infos));
+                var data = await provider.Infos(uri);
+                registry = data.registry;
+                db.Registries.Add(registry);
+                await db.SaveChangesAsync();
             }
-            return (Registry != null && Frame != null, inRam);
+            Registry = registry;
+            if (Registry == null) return (false, false);
+
+            if (info.FrameArkUrl != null) Frame = Registry.Frames.FirstOrDefault(f => f.ArkUrl == info.FrameArkUrl);
+            if (info.PageNumber.HasValue) Frame ??= Registry.Frames.FirstOrDefault(f => f.FrameNumber == info.PageNumber);
+            Frame ??= Registry.Frames.FirstOrDefault();
+            return (Frame != null, false);
         }
 
         protected internal static void AuthenticateIfNeeded(Provider provider, string method)
