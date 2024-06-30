@@ -48,7 +48,7 @@ namespace GeneaGrab.Core.Providers
                     break;
                 case FrontDomain when url.AbsolutePath.StartsWith("/ark:/"):
                     var client = new HttpClient();
-                    var response = await client.GetStringAsync(url);
+                    var response = await client.GetStringAsync(url.GetLeftPart(UriPartial.Path));
                     registryId = Regex.Match(response, "let windowsId = '(?<firstPageId>.*?)';").Groups.TryGetValue("firstPageId");
                     registrySignature = ExtractDetailFromHtmlHeader(response, "Segnatura attuale");
                     break;
@@ -91,7 +91,7 @@ namespace GeneaGrab.Core.Providers
             registry.ArkURL = Regex.Match(iiif.MetaData["Vedi il registro"], "<a .*>(?<url>.*)</a>").Groups.TryGetValue("url");
             registry.Notes = string.Join('\n', NotesMetadata.Select(key => $"{key}: {iiif.MetaData[key]}"));
 
-            return (registry, 1);
+            return (registry, registry.Frames.FirstOrDefault(f => f.ArkUrl == url.GetLeftPart(UriPartial.Path))?.FrameNumber ?? 1);
         }
 
         private static IEnumerable<RegistryType> ParseTypes(IEnumerable<string> types) => types.Select(type => type switch
