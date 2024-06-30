@@ -1,8 +1,8 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name         Antenati
 // @description  Addon GeneaGrab pour Antenati
 // @icon         https://github.com/06Games/GeneaGrab/raw/v2/GeneaGrab/Assets/Logo/Icon.png
-// @version      1.1.0
+// @version      1.1.1
 // @grant        none
 // @match        https://antenati.cultura.gov.it/**
 // @updateURL    https://github.com/06Games/GeneaGrab/raw/v2/GeneaGrab.WebScripts/Antenati.user.js
@@ -21,7 +21,7 @@ function search() {
         openInGeneagrab.classList.add("button");
         openInGeneagrab.classList.add("primary");
         openInGeneagrab.innerText = "Open in GeneaGrab";
-        openInGeneagrab.setAttribute("href", "geneagrab:registry?url=" + encodeURIComponent(item.getAttribute("href")));
+        openInGeneagrab.setAttribute("href", "geneagrab:registry?url=" + encodeURIComponent(item.href));
     }
 }
 
