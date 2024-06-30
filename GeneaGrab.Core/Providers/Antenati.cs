@@ -33,6 +33,8 @@ namespace GeneaGrab.Core.Providers
             }
         }
 
+        private static readonly string[] NotesMetadata = { "Conservato da", "Lingua" };
+
         public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
         {
             if (url.Host != Domain || !url.AbsolutePath.StartsWith("/antenati/containers/")) return Task.FromResult<RegistryInfo>(null);
@@ -53,25 +55,25 @@ namespace GeneaGrab.Core.Providers
                 ArkUrl = p.Id
             }).ToArray();
 
-            var dates = iiif.MetaData["Datazione"].Split(new[] { " - " }, StringSplitOptions.RemoveEmptyEntries);
+            var dates = iiif.MetaData["Datazione"].Split(" - ", StringSplitOptions.RemoveEmptyEntries);
             registry.From = Date.ParseDate(dates[0]);
             registry.To = Date.ParseDate(dates[1]);
             registry.Types = ParseTypes(new[] { iiif.MetaData["Tipologia"] }).ToArray();
-            var location = iiif.MetaData["Contesto archivistico"].Split(new[] { " > " }, StringSplitOptions.RemoveEmptyEntries);
+            var location = iiif.MetaData["Contesto archivistico"].Split(" > ", StringSplitOptions.RemoveEmptyEntries);
             registry.Location = location;
-            registry.ArkURL = Regex.Match(iiif.MetaData["Vedi il registro"], "<a .*>(?<url>.*)</a>").Groups["url"]?.Value;
+            registry.ArkURL = Regex.Match(iiif.MetaData["Vedi il registro"], "<a .*>(?<url>.*)</a>").Groups.TryGetValue("url");
+            registry.Notes = string.Join('\n', NotesMetadata.Select(key => $"{key}: {iiif.MetaData[key]}"));
 
             return (registry, 1);
         }
-        IEnumerable<RegistryType> ParseTypes(string[] types)
+
+        private static IEnumerable<RegistryType> ParseTypes(IEnumerable<string> types) => types.Select(type => type switch
         {
-            foreach (var type in types)
-            {
-                if (type == "Nati") yield return RegistryType.Birth;
-                if (type == "Matrimoni") yield return RegistryType.Marriage;
-                if (type == "Morti") yield return RegistryType.Death;
-            }
-        }
+            "Nati" => RegistryType.Birth,
+            "Matrimoni" => RegistryType.Marriage,
+            "Morti" => RegistryType.Death,
+            _ => RegistryType.Unknown
+        }).Where(result => result != RegistryType.Unknown);
 
         public override Task<string> Ark(Frame page) => Task.FromResult(page.ArkUrl ?? $"{page.Registry?.ArkURL} (p{page.FrameNumber})");
 
