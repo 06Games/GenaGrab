@@ -21,7 +21,7 @@
 
 ### :it: Italy
 
-* [<img src="GeneaGrab/Assets/Providers/Antenati.svg" width="20" height="20" /> Antenati](https://www.antenati.san.beniculturali.it/)
+* [<img src="GeneaGrab/Assets/Providers/Antenati.svg" width="20" height="20" /> Antenati](https://www.antenati.san.beniculturali.it/) ([🧰](GeneaGrab.WebScripts/Antenati.user.js?raw=1))
 
 ## Screenshots
 
