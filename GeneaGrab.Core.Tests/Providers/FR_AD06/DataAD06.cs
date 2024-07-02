@@ -528,17 +528,17 @@ public class DataAD06 : IEnumerable<object[]>
         // Not sure if there are any documents available online
 
         // Iconographie
-        yield return new Data
+        yield return new Data // Non-disclosable
         {
             URL = "https://archives06.fr/ark:/79346/703610.2544066/dao/0",
             Id = "703610.2544066",
-            Titre = "Sibylla Persica.",
             Auteur = "Non déterminé",
+            /*Titre = "Sibylla Persica.",
             Types = [RegistryType.Other],
             Cote = "10 Fi 1",
             Details = ["Tirages isolés ou produits par le service"],
             From = new GregorianDate(1940, precision: Precision.Years),
-            To = new GregorianDate(1960, precision: Precision.Years),
+            To = new GregorianDate(1960, precision: Precision.Years),*/
             Page = 1
         };
     }
