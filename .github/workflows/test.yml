@@ -23,7 +23,15 @@ jobs:
         run: dotnet restore
 
       - name: Test
-        uses: zyborg/dotnet-tests-report@v1
+        run: |
+          dotnet test --logger trx --results-directory test-results
+          
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action/linux@v2
+        if: always()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            test-results/**/*.xml
+            test-results/**/*.trx
+            test-results/**/*.json
       
