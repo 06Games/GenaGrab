@@ -51,14 +51,14 @@ namespace GeneaGrab.Core.Providers
                 URL = url,
                 CallNumber = infos["cote"].Value,
                 Location = new[] { infos["commune"].Value },
-                Notes = infos["type"].Success ? $"{infos["type"]?.Value}: {infos["collection"].Value}" : null,
+                Notes = infos["type"].Success ? $"{infos["type"].Value}: {infos["collection"].Value}" : null,
                 From = Date.ParseDate(infos["date_debut"].Value),
-                Types = GetTypes(infos["actes"]?.Value).ToArray(),
+                Types = GetTypes(infos["type"]?.Value, infos["actes"]?.Value).ToArray(),
                 Frames = pages.Select((p, i) => new Frame { FrameNumber = i + 1, DownloadUrl = p.Groups["original"].Value }).ToArray()
             };
             registry.To = Date.ParseDate(infos["date_fin"].Value) ?? registry.From;
 
-            IEnumerable<RegistryType> GetTypes(string type)
+            IEnumerable<RegistryType> GetTypes(string category, string type)
             {
                 if (type.Contains("Naissances")) yield return RegistryType.Birth;
                 if (type.Contains("Baptêmes")) yield return RegistryType.Baptism;
@@ -86,11 +86,17 @@ namespace GeneaGrab.Core.Providers
                 if (type.Contains("Tables décennales des naissances")) yield return RegistryType.BirthTable;
                 else if (type.Contains("Tables décennales des mariages")) yield return RegistryType.MarriageTable;
                 else if (type.Contains("Tables décennales des décès")) yield return RegistryType.DeathTable;
-                else if (type.Contains("Tables décennales"))
+                else if (type.Contains("Tables décennales") && category == "Etat civil")
                 {
                     yield return RegistryType.BirthTable;
                     yield return RegistryType.MarriageTable;
                     yield return RegistryType.DeathTable;
+                }
+                else if (type.Contains("Tables décennales"))
+                {
+                    yield return RegistryType.BaptismTable;
+                    yield return RegistryType.MarriageTable;
+                    yield return RegistryType.BurialTable;
                 }
             }
 
