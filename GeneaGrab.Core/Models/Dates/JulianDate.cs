@@ -9,7 +9,7 @@ namespace GeneaGrab.Core.Models.Dates
         private static readonly JulianCalendar JulianCalendar = new();
 
         public JulianDate(int year, int? month = null, int? day = null, int? hour = null, int? minute = null, int? second = null, Precision precision = Precision.Days)
-            : base(year, month, day, hour, minute, second, precision) { }
+            : this(new DateTime(year, month ?? 1, day ?? 1, hour ?? 0, minute ?? 0, second ?? 0, 0, DateTimeKind.Utc), precision) { }
         public JulianDate(DateTime dt, Precision precision = Precision.Days)
             : base(new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, JulianCalendar, dt.Kind), precision) { }
 
