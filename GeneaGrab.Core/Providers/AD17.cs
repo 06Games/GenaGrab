@@ -18,12 +18,12 @@ namespace GeneaGrab.Core.Providers
         public override string Id => "AD17";
         public override string Url => "https://www.archinoe.net/v2/ad17/registre.html";
 
-        public override async Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
+        public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
         {
-            if (url.Host != "www.archinoe.net" || !url.AbsolutePath.StartsWith("/v2/ad17/")) return null;
+            if (url.Host != "www.archinoe.net" || !url.AbsolutePath.StartsWith("/v2/ad17/")) return Task.FromResult<RegistryInfo>(null);
 
             var query = HttpUtility.ParseQueryString(url.Query);
-            return new RegistryInfo(this, query["id"]) { PageNumber = int.TryParse(query["page"], out var p) ? p : 1 };
+            return Task.FromResult(new RegistryInfo(this, query["id"]) { PageNumber = int.TryParse(query["page"], out var p) ? p : 1 });
         }
 
         public override async Task<(Registry, int)> Infos(Uri uri)

@@ -119,7 +119,7 @@ namespace GeneaGrab
             };
             timer.Start();
 
-            try { desktop?.Start(desktop.Args ?? Array.Empty<string>()); }
+            try { desktop?.Start(desktop.Args ?? []); }
             catch (Exception e) { Log.Fatal(e, "A fatal error occured"); }
         }
 

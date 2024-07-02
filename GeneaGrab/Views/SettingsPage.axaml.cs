@@ -57,7 +57,7 @@ namespace GeneaGrab.Views
             if (param != null && btn.IsChecked.GetValueOrDefault()) ThemeSelectorService.SetTheme((Theme)param);
         }
 
-        private void FamilySearch_Changed(object sender, TextChangedEventArgs _)
+        private void FamilySearch_Changed(object _, TextChangedEventArgs _1)
         {
             if (FamilySearch is null) return;
             else SettingsService.SettingsData.Credentials["FamilySearch"] = FamilySearch;

@@ -19,6 +19,7 @@ using FluentAvalonia.UI.Controls;
 using GeneaGrab.Core.Models;
 using GeneaGrab.Helpers;
 using GeneaGrab.Services;
+using Microsoft.VisualStudio.Threading;
 using Serilog;
 using Frame = FluentAvalonia.UI.Controls.Frame;
 
@@ -93,11 +94,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private TabViewItem NewTab() => NavigationService.NewTab(typeof(ProviderList));
 
     /// <summary>Add a new Tab to the TabView</summary>
-    private void AddTab(TabView sender, EventArgs args) => NewTab();
+    protected void AddTab(TabView _, EventArgs _1) => NewTab();
     /// <summary>Remove the requested tab from the TabView</summary>
-    private void CloseTab(TabView sender, TabViewTabCloseRequestedEventArgs args) => NavigationService.CloseTab(args.Tab);
-    private void GoBack(object sender, RoutedEventArgs e) => NavigationService.GoBack();
-    private void GoForward(object sender, RoutedEventArgs e) => NavigationService.GoForward();
+    protected void CloseTab(TabView _, TabViewTabCloseRequestedEventArgs args) => NavigationService.CloseTab(args.Tab);
+    protected void GoBack(object _, RoutedEventArgs _1) => NavigationService.GoBack();
+    protected void GoForward(object _, RoutedEventArgs _1) => NavigationService.GoForward();
 
     public new event PropertyChangedEventHandler? PropertyChanged;
     private void FrameChanged()
@@ -119,7 +120,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         tab.Header = name == null ? defaultName : string.Join(" - ", name);
         tab.Tag = frameData?.Identifier;
 
-        _ = Task.Run(async () =>
+        Task.Run(async () =>
         {
             var rp = new RichPresence
             {
@@ -137,7 +138,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }).ContinueWith(t =>
         {
             Log.Warning(t.Exception, "Couldn't update Discord RPC");
-        }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+        }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default).Forget();
     }
 
 

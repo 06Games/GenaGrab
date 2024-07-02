@@ -19,12 +19,12 @@ namespace GeneaGrab.Core.Providers
         public override string Id => "Geneanet";
         public override string Url => "https://www.geneanet.org/";
 
-        public override async Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
+        public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
         {
-            if (url.Host != "www.geneanet.org" || !url.AbsolutePath.StartsWith("/registres/view")) return null;
+            if (url.Host != "www.geneanet.org" || !url.AbsolutePath.StartsWith("/registres/view")) return Task.FromResult<RegistryInfo>(null);
 
-            var regex = Regex.Match(url.OriginalString, "(?:idcollection=(?<col>\\d*).*page=(?<page>\\d*))|(?:\\/(?<col>\\d+)(?:\\z|\\/(?<page>\\d*)))");
-            return new RegistryInfo(this, regex.Groups["col"].Value) { PageNumber = int.TryParse(regex.Groups.TryGetValue("page") ?? "1", out var pageNumber) ? pageNumber : 1 };
+            var regex = Regex.Match(url.OriginalString, @"(?:idcollection=(?<col>\d*).*page=(?<page>\d*))|(?:\/(?<col>\d+)(?:\z|\/(?<page>\d*)))");
+            return Task.FromResult(new RegistryInfo(this, regex.Groups["col"].Value) { PageNumber = int.TryParse(regex.Groups.TryGetValue("page") ?? "1", out var pageNumber) ? pageNumber : 1 });
         }
 
         #region Infos
@@ -64,7 +64,7 @@ namespace GeneaGrab.Core.Providers
             registry.URL = $"https://www.geneanet.org/registres/view/{registry.Id}";
 
             var pagesData = await client.GetStringAsync($"https://www.geneanet.org/registres/api/images/{registry.Id}?min_page=1&max_page={int.MaxValue}");
-            registry.Frames = JObject.Parse($"{{results: {pagesData}}}").Value<JArray>("results")?.Select(p =>
+            registry.Frames = JObject.Parse($"{{\"results\": {pagesData}}}").Value<JArray>("results")?.Select(p =>
             {
                 var pageNumber = p.Value<int>("page");
                 var page = !registry.Frames.Any() ? new Frame { FrameNumber = pageNumber } : registry.Frames.FirstOrDefault(rPage => rPage.FrameNumber == pageNumber);

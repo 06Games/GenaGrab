@@ -76,7 +76,7 @@ namespace GeneaGrab.Views
                     if (frame != null) _ = ChangePageAsync(frame);
                 };
 
-            SideNav.SelectionChanged += (s, e) =>
+            SideNav.SelectionChanged += (_, _) =>
             {
                 var tag = SideNav.SelectedItem is NavigationViewItem item ? item.Tag : null;
                 foreach (var child in SideContent.Children)
@@ -277,7 +277,11 @@ namespace GeneaGrab.Views
         {
             if (Provider is null || Frame == null) return;
             AuthenticateIfNeeded(Provider, nameof(Provider.GetFrame));
-            Provider.GetFrame(Frame, Scale.Full, TrackProgress).ContinueWith(t => Dispatcher.UIThread.InvokeAsync(() => RefreshView(t.Result)), TaskScheduler.Current).Forget();
+            Provider.GetFrame(Frame, Scale.Full, TrackProgress).ContinueWith(t =>
+            {
+                var frame = t.Result;
+                return Dispatcher.UIThread.InvokeAsync(() => RefreshView(frame));
+            }, TaskScheduler.Current).Forget();
         }
         private void OpenFolder(object _, RoutedEventArgs _1)
         {
