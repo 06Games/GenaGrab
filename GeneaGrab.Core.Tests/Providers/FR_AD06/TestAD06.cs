@@ -5,33 +5,24 @@ using Xunit.Abstractions;
 
 namespace GeneaGrab.Core.Tests.Providers.FR_AD06;
 
-public class TestAD06
+public class TestAD06(ITestOutputHelper output)
 {
-    private readonly AD06 instance;
+    private readonly AD06 instance = new();
     private static int timeoutCount;
-    private readonly ITestOutputHelper output;
 
-    public TestAD06(ITestOutputHelper output)
-    {
-        instance = new AD06();
-        this.output = output;
-    }
-
-    [Theory(DisplayName = "Check information retriever")]
+    [SkippableTheory(DisplayName = "Check information retriever")]
     [ClassData(typeof(DataAD06))]
     public async Task CheckInfos(Data data)
     {
-        if (timeoutCount >= 3) return; // AD06 is geo-restricted, so if the API times out 3 times, we assume it's because the location is blocked.
+        Skip.If(timeoutCount >= 3, "Probably geo-blocked"); // AD06 is geo-restricted, so if the API times out 3 times, we assume it's because the location is blocked.
         Registry registry;
         int pageNumber;
         try { (registry, pageNumber) = await instance.Infos(new Uri(data.URL)); }
         catch (Exception? e)
         {
-            while (e is not TimeoutException or TaskCanceledException or null) e = e?.InnerException;
-            if (e is not (TimeoutException or TaskCanceledException)) throw;
-
-            timeoutCount++;
-            output.WriteLine($"Timed-out ({timeoutCount})");
+            var innerEx = e;
+            while (innerEx is not TimeoutException or TaskCanceledException or null) innerEx = innerEx?.InnerException;
+            Skip.If(innerEx is TimeoutException or TaskCanceledException, $"Timed-out ({++timeoutCount})");
             throw;
         }
 
@@ -47,7 +38,7 @@ public class TestAD06
         Assert.Equal(data.From, registry.From);
         Assert.Equal(data.To, registry.To);
 
-        var pos = new List<string>(data.Details ?? Array.Empty<string>());
+        var pos = new List<string>(data.Details ?? []);
         if (data.Ville != null) pos.Add(data.Ville);
         if (data.Paroisse != null) pos.Add(data.Paroisse);
         if (pos.Contains("2e bureau de Nice 1914-1955 (autres communes)"))
