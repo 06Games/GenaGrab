@@ -7,7 +7,7 @@ namespace GeneaGrab.Core.Tests.Providers.FR_AD06;
 
 public class TestAD06(ITestOutputHelper output)
 {
-    private readonly AD06 instance = new();
+    private readonly AD06 instance = new(new HttpClient { Timeout = TimeSpan.FromSeconds(15) });
     private static int timeoutCount;
 
     [SkippableTheory(DisplayName = "Check information retriever")]

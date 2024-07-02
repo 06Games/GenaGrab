@@ -17,6 +17,10 @@ namespace GeneaGrab.Core.Providers
         public override string Id => "AD06";
         public override string Url => "https://archives06.fr/";
 
+        private readonly HttpClient client;
+
+        public AD06(HttpClient client = null) => this.client = client ?? new HttpClient();
+
         public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
         {
             if (url.Host != "archives06.fr" || !url.AbsolutePath.StartsWith("/ark:/")) return Task.FromResult<RegistryInfo>(null);
@@ -31,7 +35,6 @@ namespace GeneaGrab.Core.Providers
             var registry = new Registry(this, queries["id"].Value);
             registry.URL = $"https://archives06.fr/ark:/{queries["something"].Value}/{registry.Id}";
 
-            var client = new HttpClient();
             var manifest = new LigeoManifest(await client.GetStringAsync($"{registry.URL}/manifest"));
             if (!int.TryParse(queries["seq"].Value, out var seq)) Log.Warning("Couldn't parse sequence ({SequenceValue}), using default one", queries["seq"].Value);
             var sequence = manifest.Sequences.Length > seq ? manifest.Sequences[seq] : manifest.Sequences[0];
@@ -216,7 +219,6 @@ namespace GeneaGrab.Core.Providers
             if (stream != null) return stream;
 
             progress?.Invoke(Progress.Unknown);
-            var client = new HttpClient();
             var wantedSize = scale switch
             {
                 Scale.Thumbnail => 512,
