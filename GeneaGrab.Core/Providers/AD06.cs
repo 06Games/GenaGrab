@@ -178,37 +178,34 @@ namespace GeneaGrab.Core.Providers
 
         private static string ToTitleCase(string text) => text is null ? null : Regex.Replace(text, @"\p{L}+", match => match.Value[..1].ToUpper() + match.Value[1..].ToLower());
 
-        private static IEnumerable<RegistryType> GetTypes(string typeActe)
+        private static IEnumerable<RegistryType> GetTypes(string typeActe) => Regex.Split(typeActe, "(?=[A-Z])").Select(t => t.Trim(' ') switch
         {
-            foreach (var t in Regex.Split(typeActe, "(?=[A-Z])"))
-            {
-                var type = t.Trim(' ');
+            "Naissances" => RegistryType.Birth,
+            "Tables décennales des naissances" or "Tables alphabétiques des naissances" => RegistryType.BirthTable,
+            "Baptêmes" => RegistryType.Baptism,
+            "Tables des baptêmes" => RegistryType.BaptismTable,
 
-                if (type is "Naissances") yield return RegistryType.Birth;
-                else if (type is "Tables décennales des naissances" or "Tables alphabétiques des naissances") yield return RegistryType.BirthTable;
-                else if (type is "Baptêmes") yield return RegistryType.Baptism;
-                else if (type is "Tables des baptêmes") yield return RegistryType.BaptismTable;
+            "Confirmations" => RegistryType.Confirmation,
+            "Tables des communions" => RegistryType.Communion,
 
-                else if (type is "Confirmations") yield return RegistryType.Confirmation;
-                else if (type is "Tables des communions") yield return RegistryType.Communion;
+            "Publications" or "Publications de mariages" => RegistryType.Banns,
+            "Mariages" => RegistryType.Marriage,
+            "Tables des mariages" or "Tables décennales des mariages" or "Tables alphabétiques des mariages" => RegistryType.MarriageTable,
+            "Divorces" => RegistryType.Divorce,
 
-                else if (type is "Publications" or "Publications de mariages") yield return RegistryType.Banns;
-                else if (type is "Mariages") yield return RegistryType.Marriage;
-                else if (type is "Tables des mariages" or "Tables décennales des mariages" or "Tables alphabétiques des mariages") yield return RegistryType.MarriageTable;
-                else if (type is "Divorces") yield return RegistryType.Divorce;
+            "Décès" => RegistryType.Death,
+            "Tables décennales des décès" or "Tables alphabétiques des décès" => RegistryType.DeathTable,
+            "Sépultures" or "Sépultures des enfants décédés sans baptêmes" => RegistryType.Burial,
+            "Tables des sépultures" => RegistryType.BurialTable,
 
-                else if (type is "Décès") yield return RegistryType.Death;
-                else if (type is "Tables décennales des décès" or "Tables alphabétiques des décès") yield return RegistryType.DeathTable;
-                else if (type is "Sépultures" or "Sépultures des enfants décédés sans baptêmes") yield return RegistryType.Burial;
-                else if (type is "Tables des sépultures") yield return RegistryType.BurialTable;
+            "Répertoire" => RegistryType.Catalogue,
+            "Inventaire" => RegistryType.Other,
 
-                else if (type is "Répertoire") yield return RegistryType.Catalogue;
-                else if (type is "Inventaire") yield return RegistryType.Other;
+            "matrice cadastrale" => RegistryType.CadastralMatrix,
+            "état de section" => RegistryType.CadastralSectionStates,
 
-                else if (type is "matrice cadastrale") yield return RegistryType.CadastralMatrix;
-                else if (type is "état de section") yield return RegistryType.CadastralSectionStates;
-            }
-        }
+            _ => RegistryType.Unknown
+        }).Where(result => result != RegistryType.Unknown);
 
 
         public override Task<string> Ark(Frame page) => Task.FromResult(page.Registry == null ? null : $"{page.Registry.ArkURL}/{page.FrameNumber}");
