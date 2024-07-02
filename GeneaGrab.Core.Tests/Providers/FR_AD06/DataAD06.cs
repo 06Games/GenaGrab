@@ -554,7 +554,7 @@ public class Data
     public string? Ville;
     public string[]? Details;
     public string? Paroisse;
-    public RegistryType[] Types = null!;
+    public RegistryType[] Types = [];
     public Date From = null!;
     public string? Titre;
     public string? SousTitre;

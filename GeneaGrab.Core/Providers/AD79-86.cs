@@ -72,6 +72,12 @@ namespace GeneaGrab.Core.Providers
                 if (type == "naissance") yield return RegistryType.Birth;
                 else if (type == "mariage") yield return RegistryType.Marriage;
                 else if (type == "décès") yield return RegistryType.Death;
+                else if (type == "table décennale")
+                {
+                    yield return RegistryType.BirthTable;
+                    yield return RegistryType.MarriageTable;
+                    yield return RegistryType.DeathTable;
+                }
             }
         }
 

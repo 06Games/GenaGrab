@@ -23,7 +23,7 @@ public class TestAD79_86
         Assert.Equal(pos, registry.Location);
 
         var types = registry.Types.ToArray();
-        Assert.True(data.Types.Length == types.Length, $"{string.Join(", ", types)}\nExpected: {data.Types}");
         Assert.All(data.Types, type => Assert.Contains(type, types));
+        Assert.Equal(data.Types.Length, types.Length);
     }
 }
