@@ -34,19 +34,23 @@ namespace GeneaGrab.Core.Providers
             var client = new HttpClient();
             var manifest = new LigeoManifest(await client.GetStringAsync($"{registry.URL}/manifest"));
             if (!int.TryParse(queries["seq"].Value, out var seq)) Log.Warning("Couldn't parse sequence ({SequenceValue}), using default one", queries["seq"].Value);
-            var sequence = manifest.Sequences.ElementAt(seq);
+            var sequence = manifest.Sequences.Length > seq ? manifest.Sequences[seq] : manifest.Sequences[0];
 
-            registry.Frames = sequence.Canvases.Select((p, i) => new Frame
+            registry.Frames = sequence.Canvases.Select((p, i) =>
             {
-                FrameNumber = int.TryParse(p.Label, out var number) ? number : i + 1,
-                DownloadUrl = p.Images.First().ServiceId,
-                Width = p.Images.First().Width,
-                Height = p.Images.First().Height,
-                Extra = p.Classeur
+                var img = p.Images.FirstOrDefault();
+                return new Frame
+                {
+                    FrameNumber = int.TryParse(p.Label, out var number) ? number : i + 1,
+                    DownloadUrl = img?.ServiceId,
+                    Width = img?.Width,
+                    Height = img?.Height,
+                    Extra = p.Classeur
+                };
             }).ToArray();
 
-            var classeur = sequence.Canvases.First().Classeur;
-            registry.CallNumber = string.IsNullOrWhiteSpace(classeur.UnitId) ? null : classeur.UnitId;
+            var classeur = sequence.Canvases[0].Classeur;
+            registry.CallNumber = classeur == null || string.IsNullOrWhiteSpace(classeur.UnitId) ? null : classeur.UnitId;
             registry.ArkURL = sequence.Id;
 
             var notes = new List<string>();
@@ -103,7 +107,7 @@ namespace GeneaGrab.Core.Providers
                 }
             }
 
-            var (labelRegexExp, type) = classeur.EncodedArchivalDescriptionId.ToUpperInvariant() switch
+            var (labelRegexExp, type) = classeur?.EncodedArchivalDescriptionId.ToUpperInvariant() switch
             {
                 "FRAD006_ETAT_CIVIL" => (@"(?<callnum>.+) +- +(?<type>.*?) *?- *?\((?<from>.+?)( à (?<to>.+))?\)", null),
                 "FRAD006_CADASTRE_PLAN" => ("(?<callnum>.+) +- +(?<district>.*?) +- +(?<subtitle>.*?) +- +(?<from>.+?)", new[] { RegistryType.CadastralMap }),
@@ -147,10 +151,16 @@ namespace GeneaGrab.Core.Providers
                     .Matches(analyse, @"<ul><li><a href=[^>]+?><span>(?<archivePath>[^>]+?)\.?</span></a>")
                     .Select(m => m.Groups.TryGetValue("archivePath")));
 
-                if (classeur.EncodedArchivalDescriptionId.ToUpperInvariant() == "FRAD006_ETAT_CIVIL") // The civil registry collection only provides the city through the analysis page
-                    location = ToTitleCase(locationDetails[^1]);
-                else if (classeur.EncodedArchivalDescriptionId.ToUpperInvariant() == "FRAD006_3E" && data.TryGetValue("title") == $"{data.TryGetValue("from")}-{data.TryGetValue("to")}")
-                    registry.Title = locationDetails.LastOrDefault();
+                switch (classeur?.EncodedArchivalDescriptionId.ToUpperInvariant())
+                {
+                    // The civil registry collection only provides the city through the analysis page
+                    case "FRAD006_ETAT_CIVIL":
+                        location = ToTitleCase(locationDetails[^1]);
+                        break;
+                    case "FRAD006_3E" when data.TryGetValue("title") == $"{data.TryGetValue("from")}-{data.TryGetValue("to")}":
+                        registry.Title = locationDetails.LastOrDefault();
+                        break;
+                }
             }
             if (location != null)
             {

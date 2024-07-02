@@ -5,10 +5,11 @@ namespace GeneaGrab.Core.Helpers
     public class LigeoManifest : IiifManifest<IiifSequence<LigeoCanvas>>
     {
         public LigeoManifest(string manifest) : this(JObject.Parse(manifest)) { }
-        public LigeoManifest(JToken manifest) : base(manifest) {
+        public LigeoManifest(JToken manifest) : base(manifest)
+        {
             IsIndexable = manifest.Value<bool>("ligeoIsIndexable");
         }
-        
+
         public bool IsIndexable { get; }
     }
 
@@ -20,10 +21,11 @@ namespace GeneaGrab.Core.Helpers
             RestrictedAccess = canvas.Value<bool>("ligeoRestrictedAccess");
             RestrictMessage = canvas.Value<string>("ligeoRestrictMessage");
             IsSearchable = canvas.Value<bool>("ligeoIsSearchable");
-            Classeur = new LigeoClasseur(canvas["ligeoClasseur"]);
+            var classeur = canvas["ligeoClasseur"];
+            Classeur = classeur == null ? null : new LigeoClasseur(classeur);
             MediaPath = canvas.Value<string>("ligeoMediaPath");
         }
-        
+
         public string Permalink { get; }
         public bool RestrictedAccess { get; }
         public string RestrictMessage { get; }
@@ -31,7 +33,7 @@ namespace GeneaGrab.Core.Helpers
         public LigeoClasseur Classeur { get; }
         public string MediaPath { get; }
     }
-    
+
     public class LigeoClasseur
     {
         public LigeoClasseur(JToken classeur)
