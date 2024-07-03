@@ -14,5 +14,5 @@ public class JoinConvertor : IValueConverter
         var translateFormat = parameter as string;
         return string.Join(", ", list.Cast<object?>().Select(v => translateFormat is null ? v : ResourceConverter.GetLocalized(v?.ToString(), translateFormat, culture)));
     }
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -8,26 +7,16 @@ using System.Threading.Tasks;
 using GeneaGrab.Core.Helpers;
 using GeneaGrab.Core.Models;
 using Serilog;
-using SixLabors.ImageSharp;
 
 namespace GeneaGrab.Core.Providers
 {
-    public class AD06 : Provider
+    public class AD06 : Ligeo
     {
         public override string Id => "AD06";
-        public override string Url => "https://archives06.fr/";
+        protected override string Host => "archives06.fr";
 
-        private readonly HttpClient client;
+        public AD06(HttpClient client = null) : base(client) { }
 
-        public AD06(HttpClient client = null) => this.client = client ?? new HttpClient();
-
-        public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
-        {
-            if (url.Host != "archives06.fr" || !url.AbsolutePath.StartsWith("/ark:/")) return Task.FromResult<RegistryInfo>(null);
-
-            var queries = Regex.Match(url.AbsolutePath, @"/ark:/(?<something>[\w\.]+)(/(?<id>[\w\.]+))?(/(?<tag>[\w\.]+))?(/(?<seq>\d+))?(/(?<page>\d+))?").Groups;
-            return Task.FromResult(new RegistryInfo(this, queries["id"].Value) { PageNumber = int.TryParse(queries["page"].Value, out var page) ? page : 1 });
-        }
 
         public override async Task<(Registry, int)> Infos(Uri url)
         {
@@ -35,7 +24,7 @@ namespace GeneaGrab.Core.Providers
             var registry = new Registry(this, queries["id"].Value);
             registry.URL = $"https://archives06.fr/ark:/{queries["something"].Value}/{registry.Id}";
 
-            var manifest = new LigeoManifest(await client.GetStringAsync($"{registry.URL}/manifest"));
+            var manifest = new LigeoManifest(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
             if (!int.TryParse(queries["seq"].Value, out var seq)) Log.Warning("Couldn't parse sequence ({SequenceValue}), using default one", queries["seq"].Value);
             var sequence = manifest.Sequences.Length > seq ? manifest.Sequences[seq] : manifest.Sequences[0];
 
@@ -149,7 +138,7 @@ namespace GeneaGrab.Core.Providers
                 if (type?.Length > 0) registry.Types = registry.Types.Union(type).ToArray();
 
 
-                var analyse = await client.GetStringAsync(registry.URL);
+                var analyse = await HttpClient.GetStringAsync(registry.URL);
                 locationDetails.AddRange(Regex
                     .Matches(analyse, @"<ul><li><a href=[^>]+?><span>(?<archivePath>[^>]+?)\.?</span></a>")
                     .Select(m => m.Groups.TryGetValue("archivePath")));
@@ -210,15 +199,8 @@ namespace GeneaGrab.Core.Providers
             _ => RegistryType.Unknown
         }).Where(result => result != RegistryType.Unknown);
 
-
-        public override Task<string> Ark(Frame page) => Task.FromResult(page.Registry == null ? null : $"{page.Registry.ArkURL}/{page.FrameNumber}");
-
-        public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
+        protected override string GetRequestImageSize(ref Scale scale, Frame page)
         {
-            var stream = await Data.TryGetImageFromDrive(page, scale);
-            if (stream != null) return stream;
-
-            progress?.Invoke(Progress.Unknown);
             var wantedSize = scale switch
             {
                 Scale.Thumbnail => 512,
@@ -228,14 +210,7 @@ namespace GeneaGrab.Core.Providers
             var size = "max";
             if (wantedSize < 0 || page.Width == null || page.Width <= wantedSize) scale = Scale.Full;
             else size = $"{wantedSize},"; // AD06 neither supports ^ and ! modifiers nor percentages
-            var image = await Image
-                .LoadAsync(await client.GetStreamAsync(Iiif.GenerateImageRequestUri(page.DownloadUrl, size: size)).ConfigureAwait(false))
-                .ConfigureAwait(false);
-            page.ImageSize = scale;
-            progress?.Invoke(Progress.Finished);
-
-            await Data.SaveImage(page, image, false);
-            return image.ToStream();
+            return size;
         }
     }
 }

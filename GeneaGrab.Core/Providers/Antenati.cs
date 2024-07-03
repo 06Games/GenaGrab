@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -8,34 +7,24 @@ using System.Threading.Tasks;
 using GeneaGrab.Core.Helpers;
 using GeneaGrab.Core.Models;
 using GeneaGrab.Core.Models.Dates;
-using SixLabors.ImageSharp;
 
 namespace GeneaGrab.Core.Providers
 {
-    public class Antenati : Provider
+    public sealed class Antenati : Iiif
     {
         public override string Id => "Antenati";
         public override string Url => $"https://{FrontDomain}/";
 
 
-
         private const string FrontDomain = "antenati.cultura.gov.it";
         private const string ApiDomain = "dam-antenati.cultura.gov.it";
 
-        private HttpClient _httpClient;
-        private HttpClient HttpClient
-        {
-            get
-            {
-                if (_httpClient != null) return _httpClient;
-
-                _httpClient = new HttpClient();
-                _httpClient.DefaultRequestHeaders.Add("Referer", Url);
-                return _httpClient;
-            }
-        }
-
         private static readonly string[] NotesMetadata = { "Conservato da", "Lingua" };
+
+        public Antenati(HttpClient client = null) : base(client) => HttpClient.DefaultRequestHeaders.Add("Referer", Url);
+
+        private static string ExtractDetailFromHtmlHeader(string html, string key)
+            => Regex.Match(html, @$"<p>\s*<strong>{key}:</strong>\s*(<.*?>\s*)*(?<value>\S*?)\s*(</.*?>\s*)*</p>").Groups.TryGetValue("value");
 
         private static async Task<(string registryId, string registrySignature)> RetrieveRegistryInfosFromPage(Uri url)
         {
@@ -62,9 +51,6 @@ namespace GeneaGrab.Core.Providers
             return registryId == null ? null : new RegistryInfo(this, registryId) { FrameArkUrl = url.GetLeftPart(UriPartial.Path) };
         }
 
-        private static string ExtractDetailFromHtmlHeader(string html, string key)
-            => Regex.Match(html, @$"<p>\s*<strong>{key}:</strong>\s*(<.*?>\s*)*(?<value>\S*?)\s*(</.*?>\s*)*</p>").Groups.TryGetValue("value");
-
         public override async Task<(Registry, int)> Infos(Uri url)
         {
             var (registryId, registrySignature) = await RetrieveRegistryInfosFromPage(url);
@@ -74,8 +60,8 @@ namespace GeneaGrab.Core.Providers
                 CallNumber = registrySignature
             };
 
-            var iiif = new Iiif(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
-            registry.Frames = iiif.Sequences.First().Canvases.Select(p => new Frame
+            var iiif = new IiifManifest(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
+            registry.Frames = iiif.Sequences[0].Canvases.Select(p => new Frame
             {
                 FrameNumber = int.Parse(p.Label.Substring("pag. ".Length)),
                 DownloadUrl = p.Images.First().ServiceId,
@@ -103,25 +89,5 @@ namespace GeneaGrab.Core.Providers
         }).Where(result => result != RegistryType.Unknown);
 
         public override Task<string> Ark(Frame page) => Task.FromResult(page.ArkUrl ?? $"{page.Registry?.ArkURL} (p{page.FrameNumber})");
-
-        public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
-        {
-            var stream = await Data.TryGetImageFromDrive(page, scale);
-            if (stream != null) return stream;
-
-            progress?.Invoke(Progress.Unknown);
-            var size = scale switch
-            {
-                Scale.Thumbnail => "!512,512",
-                Scale.Navigation => "!2048,2048",
-                _ => "max"
-            };
-            var image = await Image.LoadAsync(await HttpClient.GetStreamAsync(Iiif.GenerateImageRequestUri(page.DownloadUrl, size: size)).ConfigureAwait(false)).ConfigureAwait(false);
-            page.ImageSize = scale;
-            progress?.Invoke(Progress.Finished);
-
-            await Data.SaveImage(page, image, false).ConfigureAwait(false);
-            return image.ToStream();
-        }
     }
 }

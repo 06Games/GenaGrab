@@ -1,77 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using GeneaGrab.Core.Models;
+using SixLabors.ImageSharp;
 
-namespace GeneaGrab.Core.Helpers
+namespace GeneaGrab.Core.Helpers;
+
+public abstract class Iiif : Provider
 {
-    public class Iiif : IiifManifest<IiifSequence<IiifCanvas<IiifImage>>>
+    protected HttpClient HttpClient { get; }
+    protected Iiif(HttpClient client) => HttpClient = client ?? new HttpClient();
+
+
+
+
+    #region Image download
+
+    protected virtual string GetRequestImageSize(ref Scale scale, Frame page) => scale switch
     {
-        public Iiif(string manifest) : base(manifest) { }
-        public static Uri GenerateImageRequestUri(string imageURL, string region = "full", string size = "max", string rotation = "0", string quality = "default", string format = "jpg")
-            => new($"{imageURL}/{region}/{size}/{rotation}/{quality}.{format}");
+        Scale.Thumbnail => "!512,512",
+        Scale.Navigation => "!2048,2048",
+        _ => "max"
+    };
+
+    protected static Uri ImageGeneratorRequestUri(string imageURL, string region = "full", string size = "max", string rotation = "0", string quality = "default", string format = "jpg")
+        => new($"{imageURL}/{region}/{size}/{rotation}/{quality}.{format}");
+    protected virtual Uri GetImageRequestUri(Frame page, Scale scale) => ImageGeneratorRequestUri(page.DownloadUrl, size: GetRequestImageSize(ref scale, page));
+
+    public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
+    {
+        var stream = await Data.TryGetImageFromDrive(page, scale);
+        if (stream != null) return stream;
+
+        progress?.Invoke(Progress.Unknown);
+
+        var image = await Image
+            .LoadAsync(await HttpClient.GetStreamAsync(GetImageRequestUri(page, scale)).ConfigureAwait(false))
+            .ConfigureAwait(false);
+        page.ImageSize = scale;
+        progress?.Invoke(Progress.Finished);
+
+        await Data.SaveImage(page, image, false);
+        return image.ToStream();
     }
 
-    public class IiifManifest<TSequence>
-    {
-        public IiifManifest(string manifest) : this(JObject.Parse(manifest)) { }
-        internal IiifManifest(JToken manifest)
-        {
-            MetaData = new ReadOnlyDictionary<string, string>(manifest["metadata"]?.ToDictionary(m => m.Value<string>("label"), m => m.Value<string>("value")) ?? new Dictionary<string, string>());
-            Sequences = manifest["sequences"]?.Select(s => (TSequence)Activator.CreateInstance(typeof(TSequence), s)).ToArray() ?? Array.Empty<TSequence>();
-        }
-
-        public ReadOnlyDictionary<string, string> MetaData { get; }
-        public TSequence[] Sequences { get; }
-    }
-
-    public class IiifSequence<TCanvas>
-    {
-        public IiifSequence(JToken sequence)
-        {
-            Id = sequence.Value<string>("@id");
-            Label = sequence.Value<string>("@label") ?? sequence.Value<string>("label");
-            Canvases = sequence["canvases"]?.Select(s => (TCanvas)Activator.CreateInstance(typeof(TCanvas), s)).ToArray() ?? Array.Empty<TCanvas>();
-        }
-
-        public string Id { get; }
-        public string Label { get; }
-        public TCanvas[] Canvases { get; }
-    }
-
-    public class IiifCanvas<TImage>
-    {
-        public IiifCanvas(JToken canvas)
-        {
-            Id = canvas.Value<string>("@id");
-            Label = canvas.Value<string>("label") ?? canvas.Value<string>("@label");
-            Thumbnail = canvas["thumbnail"]?.HasValues ?? false ? canvas["thumbnail"].Value<string>("@id") : canvas.Value<string>("thumbnail");
-            Images = canvas["images"]?.Select(s => (TImage)Activator.CreateInstance(typeof(TImage), s)).ToArray() ?? Array.Empty<TImage>();
-        }
-
-        public string Id { get; }
-        public string Label { get; }
-        public string Thumbnail { get; }
-        public TImage[] Images { get; }
-    }
-
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class IiifImage
-    {
-        public IiifImage(JToken image)
-        {
-            Id = image.Value<string>("@id");
-            Format = image["resource"].Value<string>("format");
-            Width = image["resource"].Value<int?>("width");
-            Height = image["resource"].Value<int?>("height");
-            ServiceId = image["resource"]["service"]?.Value<string>("@id");
-        }
-
-        public string Id { get; }
-        public string Format { get; }
-        public int? Width { get; }
-        public int? Height { get; }
-        public string ServiceId { get; }
-    }
+    #endregion
 }

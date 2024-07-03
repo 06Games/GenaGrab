@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -8,22 +7,16 @@ using System.Threading.Tasks;
 using GeneaGrab.Core.Helpers;
 using GeneaGrab.Core.Models;
 using GeneaGrab.Core.Models.Dates;
-using SixLabors.ImageSharp;
 
 namespace GeneaGrab.Core.Providers
 {
-    public class AD79_86 : Provider
+    public class AD79_86 : Ligeo
     {
         public override string Id => "AD79-86";
-        public override string Url => "https://archives-deux-sevres-vienne.fr/";
+        protected override string Host => "archives-deux-sevres-vienne.fr";
 
-        public override Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url)
-        {
-            if (url.Host != "archives-deux-sevres-vienne.fr" || !url.AbsolutePath.StartsWith("/ark:/")) return Task.FromResult<RegistryInfo>(null);
+        public AD79_86(HttpClient client = null) : base(client) { }
 
-            var queries = Regex.Match(url.AbsolutePath, "/ark:/(?<something>.*?)/(?<id>.*?)/daogrp/(?<seq>\\d*?)/((?<page>\\d*?)/)?").Groups;
-            return Task.FromResult(new RegistryInfo(this, queries["id"].Value) { PageNumber = int.TryParse(queries["page"].Value, out var page) ? page : 1 });
-        }
 
         public override async Task<(Registry, int)> Infos(Uri url)
         {
@@ -31,8 +24,7 @@ namespace GeneaGrab.Core.Providers
             var registry = new Registry(this, queries["id"].Value);
             registry.URL = $"https://archives-deux-sevres-vienne.fr/ark:/{queries["something"]?.Value}/{registry.Id}";
 
-            var client = new HttpClient();
-            var iiif = new LigeoManifest(await client.GetStringAsync($"{registry.URL}/manifest"));
+            var iiif = new LigeoManifest(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
             int.TryParse(queries["seq"]?.Value, out var seq);
             var sequence = iiif.Sequences.ElementAt(seq);
 
@@ -81,29 +73,7 @@ namespace GeneaGrab.Core.Providers
             }
         }
 
-        public override Task<string> Ark(Frame page) => Task.FromResult($"{page.Registry.ArkURL}/{page.FrameNumber}");
-
-        public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
-        {
-            var stream = await Data.TryGetImageFromDrive(page, scale);
-            if (stream != null) return stream;
-
-            progress?.Invoke(Progress.Unknown);
-            var client = new HttpClient();
-            var size = scale switch
-            {
-                Scale.Thumbnail => "!512,512",
-                Scale.Navigation => "!2048,2048",
-                _ => "max"
-            };
-            var image = await Image
-                .LoadAsync(await client.GetStreamAsync(scale == Scale.Full ? new Uri(page.DownloadUrl) : Iiif.GenerateImageRequestUri(page.ArkUrl, size: size)).ConfigureAwait(false))
-                .ConfigureAwait(false);
-            page.ImageSize = scale;
-            progress?.Invoke(Progress.Finished);
-
-            await Data.SaveImage(page, image, false);
-            return image.ToStream();
-        }
+        protected override Uri GetImageRequestUri(Frame page, Scale scale)
+            => scale == Scale.Full && page.DownloadUrl != null ? new Uri(page.DownloadUrl) : ImageGeneratorRequestUri(page.ArkUrl, size: GetRequestImageSize(ref scale, page));
     }
 }
