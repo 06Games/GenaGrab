@@ -30,12 +30,12 @@ namespace GeneaGrab.Core.Providers
             var client = new HttpClient();
             var pageBody = await client.GetStringAsync(url).ConfigureAwait(false);
 
-            var data = Regex.Match(pageBody, "<h2>R&eacute;f&eacute;rence :  (?<title>.* (?<number>\\d*)) de l'ann&eacute;e (?<year>\\d*).*<\\/h2>").Groups;
+            var data = Regex.Match(pageBody, @"<h2>R&eacute;f&eacute;rence :  (?<title>.* (?<number>\d*)) de l'ann&eacute;e (?<year>\d*).*<\/h2>").Groups;
             var date = Date.ParseDate(data["year"].Value);
 
             var pageData = Regex.Match(pageBody, "var pages = Array\\((?<pages>.*)\\);\\n.*var path = \"(?<path>.*)\";").Groups;
             Uri.TryCreate(url, pageData["path"].Value, out var path);
-            var pages = pageData["pages"].Value.Split(new[] { ", " }, StringSplitOptions.None);
+            var pages = pageData["pages"].Value.Split(", ");
 
             var pagesTable = Regex.Matches(pageBody, "<a href=\"#\" class=\"(?<class>.*)\" onclick=\"doc\\.set\\('(?<index>\\d*)'\\); return false;\" title=\".*\">(?<number>\\d*)<\\/a>").ToArray();
 
@@ -57,21 +57,21 @@ namespace GeneaGrab.Core.Providers
                 }).ToArray()
             };
 
-            return (registry, int.Parse(pagesTable.FirstOrDefault(p => p.Groups["class"].Value == "current")?.Groups["index"]?.Value ?? "1"));
+            return (registry, int.Parse(Array.Find(pagesTable, p => p.Groups["class"].Value == "current")?.Groups.TryGetValue("index") ?? "1"));
         }
 
 
         public override Task<string> Ark(Frame page) => Task.FromResult($"p{page.FrameNumber}");
 
-        public override async Task<Stream> GetFrame(Frame page, Scale zoom, Action<Progress> progress)
+        public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
         {
-            var stream = await Data.TryGetImageFromDrive(page, zoom);
+            var stream = await Data.TryGetImageFromDrive(page, scale);
             if (stream != null) return stream;
 
             progress?.Invoke(Progress.Unknown);
             var client = new HttpClient();
             var image = await Grabber.GetImage(page.DownloadUrl, client).ConfigureAwait(false);
-            page.ImageSize = zoom;
+            page.ImageSize = scale;
             progress?.Invoke(Progress.Finished);
 
             await Data.SaveImage(page, image, false).ConfigureAwait(false);
