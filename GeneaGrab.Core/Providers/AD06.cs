@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GeneaGrab.Core.Helpers;
 using GeneaGrab.Core.Models;
-using Serilog;
 
 namespace GeneaGrab.Core.Providers
 {
@@ -18,87 +19,66 @@ namespace GeneaGrab.Core.Providers
         public AD06(HttpClient client = null) : base(client) { }
 
 
-        public override async Task<(Registry, int)> Infos(Uri url)
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
+        protected override void ParseMetaData(ref Registry registry, string key, string value)
         {
-            var queries = Regex.Match(url.AbsolutePath, @"/ark:/(?<something>[\w\.]+)(/(?<id>[\w\.]+))?(/(?<tag>[\w\.]+))?(/(?<seq>\d+))?(/(?<page>\d+))?").Groups;
-            var registry = new Registry(this, queries["id"].Value);
-            registry.URL = $"https://archives06.fr/ark:/{queries["something"].Value}/{registry.Id}";
-
-            var manifest = new LigeoManifest(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
-            if (!int.TryParse(queries["seq"].Value, out var seq)) Log.Warning("Couldn't parse sequence ({SequenceValue}), using default one", queries["seq"].Value);
-            var sequence = manifest.Sequences.Length > seq ? manifest.Sequences[seq] : manifest.Sequences[0];
-
-            registry.Frames = sequence.Canvases.Select((p, i) =>
+            switch (key)
             {
-                var img = p.Images.FirstOrDefault();
-                return new Frame
+                case "Commune":
+                case "Commune d’exercice du notaire":
+                case "Lieu":
+                case "Lieu d'édition":
+                    registry.Location[0] = ToTitleCase(value.ToLower());
+                    break;
+                case "Paroisse":
+                case "Complément de lieu":
+                    registry.Location[1] = ToTitleCase(value.ToLower());
+                    break;
+                case "Date":
+                case "Date de l'acte":
+                case "Année (s)":
                 {
-                    FrameNumber = int.TryParse(p.Label, out var number) ? number : i + 1,
-                    DownloadUrl = img?.ServiceId,
-                    Width = img?.Width,
-                    Height = img?.Height,
-                    Extra = p.Classeur
-                };
-            }).ToArray();
-
-            var classeur = sequence.Canvases[0].Classeur;
-            registry.CallNumber = classeur == null || string.IsNullOrWhiteSpace(classeur.UnitId) ? null : classeur.UnitId;
-            registry.ArkURL = sequence.Id;
-
-            var notes = new List<string>();
-            var locationDetails = new List<string>();
-            string location = null;
-            string district = null;
-            // ReSharper disable StringLiteralTypo
-            foreach (var metadata in manifest.MetaData)
-            {
-                var value = Regex.Replace(metadata.Value, "<[^>]*>", ""); // Remove HTML tags
-                switch (metadata.Key)
-                {
-                    case "Commune":
-                    case "Commune d’exercice du notaire":
-                    case "Lieu":
-                    case "Lieu d'édition":
-                        location = ToTitleCase(value.ToLower());
-                        break;
-                    case "Paroisse":
-                    case "Complément de lieu":
-                        district = ToTitleCase(value.ToLower());
-                        break;
-                    case "Date":
-                    case "Date de l'acte":
-                    case "Année (s)":
-                    {
-                        var dates = value.Split('-');
-                        registry.From = dates.FirstOrDefault()?.Trim();
-                        registry.To = dates.LastOrDefault()?.Trim();
-                        break;
-                    }
-                    case "Typologie":
-                    case "Type de document":
-                    case "Type d'acte":
-                        registry.Types = registry.Types.Union(GetTypes(value)).ToArray();
-                        break;
-                    case "Analyse":
-                        registry.Title = value;
-                        break;
-                    case "Folio":
-                    case "Volume":
-                        registry.Subtitle = value;
-                        break;
-                    case "Auteur":
-                    case "Photographe":
-                    case "Sigillant":
-                    case "Bureau":
-                    case "Présentation du producteur":
-                        registry.Author = value;
-                        break;
-                    default:
-                        notes.Add($"{metadata.Key}: {value}");
-                        break;
+                    var dates = value.Split('-');
+                    registry.From = dates.FirstOrDefault()?.Trim();
+                    registry.To = dates.LastOrDefault()?.Trim();
+                    break;
                 }
+                case "Typologie":
+                case "Type de document":
+                case "Type d'acte":
+                    registry.Types = registry.Types.Union(GetTypes(value)).ToArray();
+                    break;
+                case "Analyse":
+                    registry.Title = value;
+                    break;
+                case "Folio":
+                case "Volume":
+                    registry.Subtitle = value;
+                    break;
+                case "Auteur":
+                case "Photographe":
+                case "Sigillant":
+                case "Bureau":
+                case "Présentation du producteur":
+                    registry.Author = value;
+                    break;
+                default:
+                    base.ParseMetaData(ref registry, key, value);
+                    break;
             }
+        }
 
+        protected override void ReadAllMetadata(ref Registry registry, ReadOnlyDictionary<string, string> manifestMetadata)
+        {
+            registry.Location = new string[2];
+            base.ReadAllMetadata(ref registry, manifestMetadata);
+        }
+
+        protected override async Task ParseClasseur(Registry registry, IIiifSequence sequence, LigeoClasseur classeur)
+        {
+            await base.ParseClasseur(registry, sequence, classeur);
+
+            // ReSharper disable StringLiteralTypo
             var (labelRegexExp, type) = classeur?.EncodedArchivalDescriptionId.ToUpperInvariant() switch
             {
                 "FRAD006_ETAT_CIVIL" => (@"(?<callnum>.+) +- +(?<type>.*?) *?- *?\((?<from>.+?)( à (?<to>.+))?\)", null),
@@ -123,6 +103,9 @@ namespace GeneaGrab.Core.Providers
             };
             // ReSharper restore StringLiteralTypo
 
+            var locationDetails = new List<string>();
+            var location = string.IsNullOrWhiteSpace(registry.Location[0]) ? null : registry.Location[0];
+            var district = string.IsNullOrWhiteSpace(registry.Location[1]) ? null : registry.Location[1];
             if (labelRegexExp != null)
             {
                 var data = Regex.Match(sequence.Label, labelRegexExp).Groups;
@@ -162,10 +145,6 @@ namespace GeneaGrab.Core.Providers
             }
             if (district != null) locationDetails.Add(district);
             registry.Location = locationDetails.ToArray();
-            registry.Notes = string.Join("\n", notes);
-
-
-            return (registry, int.TryParse(queries["page"].Value, out var page) ? page : 1);
         }
 
         private static string ToTitleCase(string text) => text is null ? null : Regex.Replace(text, @"\p{L}+", match => match.Value[..1].ToUpper() + match.Value[1..].ToLower());

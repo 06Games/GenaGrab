@@ -51,7 +51,8 @@ namespace GeneaGrab.Core.Providers
             return registryId == null ? null : new RegistryInfo(this, registryId) { FrameArkUrl = url.GetLeftPart(UriPartial.Path) };
         }
 
-        public override async Task<(Registry, int)> Infos(Uri url)
+
+        protected override async Task<(Registry registry, int sequence, object page)> ParseUrl(Uri url)
         {
             var (registryId, registrySignature) = await RetrieveRegistryInfosFromPage(url);
             var registry = new Registry(this, registryId)
@@ -59,25 +60,42 @@ namespace GeneaGrab.Core.Providers
                 URL = $"https://{ApiDomain}/antenati/containers/{registryId}",
                 CallNumber = registrySignature
             };
+            return (registry, 0, url.GetLeftPart(UriPartial.Path));
+        }
 
-            var iiif = new IiifManifest(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
-            registry.Frames = iiif.Sequences[0].Canvases.Select(p => new Frame
+        protected override int GetPage(Registry registry, object page)
+        {
+            var pageUrl = page as string;
+            return registry.Frames.FirstOrDefault(f => f.ArkUrl == pageUrl)?.FrameNumber ?? 1;
+        }
+
+        protected override void ParseMetaData(ref Registry registry, string key, string value)
+        {
+            switch (key)
             {
-                FrameNumber = int.Parse(p.Label.Substring("pag. ".Length)),
-                DownloadUrl = p.Images.First().ServiceId,
-                ArkUrl = p.Id
-            }).ToArray();
-
-            var dates = iiif.MetaData["Datazione"].Split(" - ", StringSplitOptions.RemoveEmptyEntries);
-            registry.From = Date.ParseDate(dates[0]);
-            registry.To = Date.ParseDate(dates[1]);
-            registry.Types = ParseTypes(new[] { iiif.MetaData["Tipologia"] }).ToArray();
-            var location = iiif.MetaData["Contesto archivistico"].Split(" > ", StringSplitOptions.RemoveEmptyEntries);
-            registry.Location = location;
-            registry.ArkURL = Regex.Match(iiif.MetaData["Vedi il registro"], "<a .*>(?<url>.*)</a>").Groups.TryGetValue("url");
-            registry.Notes = string.Join('\n', NotesMetadata.Select(key => $"{key}: {iiif.MetaData[key]}"));
-
-            return (registry, registry.Frames.FirstOrDefault(f => f.ArkUrl == url.GetLeftPart(UriPartial.Path))?.FrameNumber ?? 1);
+                case "Datazione":
+                {
+                    var dates = value.Split(" - ", StringSplitOptions.RemoveEmptyEntries);
+                    registry.From = Date.ParseDate(dates[0]);
+                    registry.To = Date.ParseDate(dates[1]);
+                    break;
+                }
+                case "Tipologia":
+                    registry.Types = ParseTypes(new[] { value }).ToArray();
+                    break;
+                case "Contesto archivistico":
+                    registry.Location = value.Split(" > ", StringSplitOptions.RemoveEmptyEntries);
+                    break;
+                case "Vedi il registro":
+                    registry.ArkURL = value;
+                    break;
+                default:
+                {
+                    if (NotesMetadata.Contains(key))
+                        base.ParseMetaData(ref registry, key, value);
+                    break;
+                }
+            }
         }
 
         private static IEnumerable<RegistryType> ParseTypes(IEnumerable<string> types) => types.Select(type => type switch

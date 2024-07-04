@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GeneaGrab.Core.Helpers;
 using GeneaGrab.Core.Models;
@@ -17,38 +17,33 @@ namespace GeneaGrab.Core.Providers
 
         public AD79_86(HttpClient client = null) : base(client) { }
 
-
-        public override async Task<(Registry, int)> Infos(Uri url)
+        protected override Frame CreateFrame(IIiifCanvas p, int i)
         {
-            var queries = Regex.Match(url.AbsolutePath, "/ark:/(?<something>.*?)/(?<id>.*?)/daogrp/(?<seq>\\d*?)/((?<page>\\d*?)/)?").Groups;
-            var registry = new Registry(this, queries["id"].Value);
-            registry.URL = $"https://archives-deux-sevres-vienne.fr/ark:/{queries["something"]?.Value}/{registry.Id}";
+            var frame = base.CreateFrame(p, i);
+            frame.ArkUrl = p.Images.FirstOrDefault()?.ServiceId;
+            frame.DownloadUrl = p.Images.FirstOrDefault()?.Id;
+            return frame;
+        }
 
-            var iiif = new LigeoManifest(await HttpClient.GetStringAsync($"{registry.URL}/manifest"));
-            int.TryParse(queries["seq"]?.Value, out var seq);
-            var sequence = iiif.Sequences.ElementAt(seq);
+        protected override async Task ReadSequence(Registry registry, IIiifSequence sequence)
+        {
+            await base.ReadSequence(registry, sequence);
 
-            registry.Frames = sequence.Canvases.Select((p, i) => new Frame()
-            {
-                FrameNumber = int.TryParse(p.Label, out var number) ? number : (i + 1),
-                ArkUrl = p.Images.First().ServiceId,
-                DownloadUrl = p.Images.First().Id,
-                Extra = p.Classeur
-            }).ToArray();
-
-            var dates = sequence.Label.Split(new[] { "- (" }, StringSplitOptions.RemoveEmptyEntries)[^1].Replace(") ", "").Split('-');
+            var dates = sequence.Label.Split("- (", StringSplitOptions.RemoveEmptyEntries)[^1].Replace(") ", "").Split('-');
             registry.From = Date.ParseDate(dates[0]);
             registry.To = Date.ParseDate(dates[^1]);
-            registry.Types = ParseTypes(iiif.MetaData["Type de document"]).ToArray();
-            registry.CallNumber = iiif.MetaData["Cote"];
-            registry.Notes = GenerateNotes(iiif.MetaData);
-            var location = new List<string> { iiif.MetaData["Commune"] };
-            if (iiif.MetaData.TryGetValue("Paroisse", out var paroisse)) location.Add(paroisse);
-            registry.Location = location.ToArray();
-            registry.ArkURL = sequence.Id;
-
-            return (registry, int.TryParse(queries["page"].Value, out var page) ? page : 1);
         }
+
+        protected override void ReadAllMetadata(ref Registry registry, ReadOnlyDictionary<string, string> manifestMetadata)
+        {
+            registry.Types = ParseTypes(manifestMetadata["Type de document"]).ToArray();
+            registry.CallNumber = manifestMetadata["Cote"];
+            registry.Notes = GenerateNotes(manifestMetadata);
+            var location = new List<string> { manifestMetadata["Commune"] };
+            if (manifestMetadata.TryGetValue("Paroisse", out var paroisse)) location.Add(paroisse);
+            registry.Location = location.ToArray();
+        }
+
         private static string GenerateNotes(IReadOnlyDictionary<string, string> metaData)
         {
             var notes = new List<string>();
@@ -58,17 +53,24 @@ namespace GeneaGrab.Core.Providers
         }
         private static IEnumerable<RegistryType> ParseTypes(string types)
         {
-            //TODO: Rewrite this function
-            foreach (var type in types.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var type in types.Split(", ", StringSplitOptions.RemoveEmptyEntries))
             {
-                if (type == "naissance") yield return RegistryType.Birth;
-                else if (type == "mariage") yield return RegistryType.Marriage;
-                else if (type == "décès") yield return RegistryType.Death;
-                else if (type == "table décennale")
+                switch (type)
                 {
-                    yield return RegistryType.BirthTable;
-                    yield return RegistryType.MarriageTable;
-                    yield return RegistryType.DeathTable;
+                    case "naissance":
+                        yield return RegistryType.Birth;
+                        break;
+                    case "mariage":
+                        yield return RegistryType.Marriage;
+                        break;
+                    case "décès":
+                        yield return RegistryType.Death;
+                        break;
+                    case "table décennale":
+                        yield return RegistryType.BirthTable;
+                        yield return RegistryType.MarriageTable;
+                        yield return RegistryType.DeathTable;
+                        break;
                 }
             }
         }
