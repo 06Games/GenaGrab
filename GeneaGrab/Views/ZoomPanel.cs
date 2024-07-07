@@ -26,7 +26,7 @@ namespace GeneaGrab.Views
         private Control? _child;
 
         public double ZoomMultiplier { get; set; } = 1.5;
-        
+
         /// <summary>The user has moved the child</summary>
         public event Action<double, double>? PositionChanged;
         /// <summary>The user has changed the zoom</summary>
@@ -48,7 +48,7 @@ namespace GeneaGrab.Views
             PointerPressed += (_, e) =>
             {
                 var point = e.GetCurrentPoint(this);
-                if (point.Properties.IsRightButtonPressed) Reset();
+                if (point.Properties.IsMiddleButtonPressed) Reset();
             };
 
             LayoutUpdated += (_, _) => SetClip();
