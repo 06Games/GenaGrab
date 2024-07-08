@@ -10,10 +10,11 @@ using System.Security.Authentication;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using DiscordRPC;
 using FluentAvalonia.UI.Controls;
@@ -63,6 +64,10 @@ namespace GeneaGrab.Views
         public Registry? Registry { get; private set; }
         public Frame? Frame { get; private set; }
 
+
+
+        private Control? draggedRectangle;
+
         public RegistryViewer()
         {
             InitializeComponent();
@@ -96,6 +101,20 @@ namespace GeneaGrab.Views
                 MainGrid.Width = b.Width;
                 MainGrid.Height = b.Height;
             });
+
+            ImagePanel.Dragging += dragProperties =>
+            {
+                if (dragProperties.PressedButton != MouseButton.Right) return;
+                if (draggedRectangle == null) draggedRectangle = DrawRectangle(dragProperties.Area);
+                else UpdateRectangle(draggedRectangle, dragProperties.Area);
+            };
+            ImagePanel.DraggingStopped += dragProperties =>
+            {
+                RemoveRectangle(draggedRectangle);
+                draggedRectangle = null;
+                if (dragProperties.PressedButton == MouseButton.Right)
+                    AddIndex(dragProperties.Area);
+            };
         }
 
         private static async Task SaveAsync<T>(T entity)
@@ -319,13 +338,14 @@ namespace GeneaGrab.Views
 
         #region Index
 
-        private void AddIndex(object _, RoutedEventArgs _1)
+        private void AddIndex(object _, RoutedEventArgs _1) => AddIndex(new Rect(100, 75, 100, 50));
+        private void AddIndex(Rect position)
         {
             if (Registry == null || Frame == null) return;
             using var db = new DatabaseContext();
             db.Records.Add(new Record(Registry.ProviderId, Registry.Id, Frame.FrameNumber)
             {
-                Position = new Rect(100, 75, 100, 50)
+                Position = position
             });
             db.SaveChanges();
             DisplayIndex();
@@ -336,30 +356,50 @@ namespace GeneaGrab.Views
             ImageCanvas.Children.Clear();
 
             using var db = new DatabaseContext();
-            var indexes = db.Records.Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber);
-            RecordList.ItemsSource = indexes.ToList();
+            var indexes = db.Records.Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber).ToList();
+            RecordList.ItemsSource = indexes;
             foreach (var index in indexes)
                 DisplayIndexRectangle(index);
         }
         private void DisplayIndexRectangle(Record? index)
         {
             if (index?.Position is null) return;
-
-            var pos = index.Position.Value;
-            var btn = new Rectangle
-            {
-                Fill = new SolidColorBrush(Color.FromRgb((byte)(index.Id * 100 % 255), (byte)((index.Id + 2) * 50 % 255), (byte)((index.Id + 1) * 75 % 255))),
-                Opacity = .25,
-                Width = pos.Width,
-                Height = pos.Height
-            };
-
+            var btn = DrawRectangle(index.Position.Value, index.Id);
             var tt = new ToolTip { Content = index.ToString() };
             ToolTip.SetTip(btn, tt);
+        }
 
-            ImageCanvas.Children.Add(btn);
-            Canvas.SetLeft(btn, pos.X);
-            Canvas.SetTop(btn, pos.Y);
+
+        private readonly Color[] colors = [Colors.ForestGreen, Colors.RoyalBlue];
+        private Border DrawRectangle(Rect rect, int id = -1) => DrawRectangle(rect, id < 0 ? Colors.Coral : colors[id % colors.Length]);
+        private Border DrawRectangle(Rect rect, Color color)
+        {
+            var rectangle = new Border
+            {
+                Background = new SolidColorBrush(color, .3),
+                BorderBrush = new SolidColorBrush(color),
+                BorderThickness = new Thickness(2),
+                CornerRadius = new CornerRadius(5)
+            };
+            rectangle.Styles.Add(new Style { Setters = { new Setter(OpacityProperty, .2d) } });
+            rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .25d) } });
+
+            ImageCanvas.Children.Add(rectangle);
+            UpdateRectangle(rectangle, rect);
+            return rectangle;
+        }
+
+        private static void UpdateRectangle(Control rectangle, Rect rect)
+        {
+            rectangle.Width = rect.Width;
+            rectangle.Height = rect.Height;
+            Canvas.SetLeft(rectangle, rect.X);
+            Canvas.SetTop(rectangle, rect.Y);
+        }
+
+        private void RemoveRectangle(Control? rectangle)
+        {
+            if (rectangle != null) ImageCanvas.Children.Remove(rectangle);
         }
 
         #endregion
