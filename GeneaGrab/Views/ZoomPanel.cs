@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using GeneaGrab.Helpers;
 using Vector = Avalonia.Vector;
 
 namespace GeneaGrab.Views
@@ -30,6 +31,10 @@ namespace GeneaGrab.Views
 
         /// <summary>The user has moved the child</summary>
         public event Action<double, double>? PositionChanged;
+
+        /// <summary>The user stopped moving the child</summary>
+        public event Action<Rect>? MovementStopped;
+
         /// <summary>The user has changed the zoom</summary>
         public event Action<double>? ZoomChanged;
 
@@ -136,14 +141,13 @@ namespace GeneaGrab.Views
             if (Child is null) return;
 
             var pointer = e.GetCurrentPoint(this);
-            if (!pointer.Properties.IsLeftButtonPressed) return;
 
             var tt = GetTranslateTransform(Child);
             if (tt == null) return;
 
             start = pointer.Position;
             origin = new Point(tt.X, tt.Y);
-            Cursor = new Cursor(StandardCursorType.Hand);
+            if (pointer.Properties.IsLeftButtonPressed) Cursor = new Cursor(StandardCursorType.Hand);
             e.Pointer.Capture(Child);
         }
 
@@ -153,13 +157,26 @@ namespace GeneaGrab.Views
 
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
+
+            if (MovementStopped == null || e.InitialPressMouseButton != MouseButton.Right) return;
+            var mouse = e.GetCurrentPoint(this).Position;
+            var zoom = GetScaleTransform(Child)?.ScaleX ?? 1;
+            var area = new Rect(start, mouse)
+                .Translate(-origin) // Subtracts image position in the canvas
+                .Translate((Child.Bounds.Size * zoom - Bounds.Size) / 2) // From top-left of the image
+                .Divide(zoom) // Full-scale
+                .Normalize() // Ensure size is positive (if not, it will change the origin)
+                .Intersect(new Rect(Child.Bounds.Size)) // Remove everything outside the image
+                .Round(); // Round values to integers
+            MovementStopped.Invoke(area);
         }
 
         private void child_MouseMove(object? _, PointerEventArgs e)
         {
             if (Child is null || !Equals(e.Pointer.Captured, Child)) return;
-            var (mouseX, mouseY) = e.GetCurrentPoint(this).Position;
-            MoveTo(origin.X + mouseX - start.X, origin.Y + mouseY - start.Y);
+            var pointer = e.GetCurrentPoint(this);
+            if (!pointer.Properties.IsLeftButtonPressed) return;
+            MoveTo(origin + pointer.Position - start);
         }
 
         private void MoveTo(Point p) => MoveTo(p.X, p.Y);
