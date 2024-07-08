@@ -85,7 +85,7 @@
                 </controls:NavigationView.MenuItems>
 
                 <Grid FlowDirection="LeftToRight" Margin="15" RowDefinitions="*,150" Name="SidePanel">
-                    <ScrollViewer >
+                    <ScrollViewer>
                         <Panel Name="SideContent">
                             <StackPanel Tag="Info" Spacing="15">
                                 <StackPanel>
@@ -113,17 +113,24 @@
                                              BorderBrush="Transparent" AcceptsReturn="True" Padding="0" />
                                 </StackPanel>
                             </StackPanel>
-                            
+
                             <StackPanel Tag="Index">
-                                <Grid ColumnDefinitions="*,22">
+                                <Grid ColumnDefinitions="*,26">
                                     <TextBlock Grid.Column="0" FontSize="16" Text="Index" />
-                                    <Button Grid.Column="1" Content="+" Padding="5,0,5,1" Click="AddIndex" />
+                                    <Button Grid.Column="1" Padding="5" Click="AddIndex">
+                                        <controls:SymbolIcon Symbol="Add" />
+                                    </Button>
                                 </Grid>
                                 <ListBox MaxHeight="500" Name="RecordList">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="indexing:Record">
-                                            <Grid RowDefinitions="*,*,*,*" ColumnDefinitions="100,100">
-                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Id}" FontSize="12" />
+                                            <Grid RowDefinitions="*" ColumnDefinitions="*,*">
+                                                <Grid ColumnSpan="2" ColumnDefinitions="*,26">
+                                                    <TextBlock Text="{Binding Id}" FontSize="12" VerticalAlignment="Center" />
+                                                    <Button Grid.Column="1" Padding="5" Click="RemoveIndex">
+                                                        <controls:SymbolIcon Symbol="Delete" />
+                                                    </Button>
+                                                </Grid>
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>

@@ -350,6 +350,21 @@ namespace GeneaGrab.Views
             db.SaveChanges();
             DisplayIndex();
         }
+
+        private void RemoveIndex(object _, RoutedEventArgs e)
+        {
+            if (e.Source is Control { DataContext: Record record })
+                RemoveIndex(record);
+        }
+        private void RemoveIndex(Record record)
+        {
+            if (Registry == null || Frame == null) return;
+            using var db = new DatabaseContext();
+            db.Records.Remove(record);
+            db.SaveChanges();
+            DisplayIndex();
+        }
+
         private void DisplayIndex()
         {
             if (Registry == null || Frame == null) return;
@@ -367,6 +382,12 @@ namespace GeneaGrab.Views
             var btn = DrawRectangle(index.Position.Value, index.Id);
             var tt = new ToolTip { Content = index.ToString() };
             ToolTip.SetTip(btn, tt);
+
+            btn.PointerPressed += (_, e) =>
+            {
+                if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed || e.ClickCount != 2) return;
+                // TODO
+            };
         }
 
 
@@ -382,7 +403,7 @@ namespace GeneaGrab.Views
                 CornerRadius = new CornerRadius(5)
             };
             rectangle.Styles.Add(new Style { Setters = { new Setter(OpacityProperty, .2d) } });
-            rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .25d) } });
+            rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .4d) } });
 
             ImageCanvas.Children.Add(rectangle);
             UpdateRectangle(rectangle, rect);
