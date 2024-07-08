@@ -29,11 +29,14 @@ namespace GeneaGrab.Views
 
         public double ZoomMultiplier { get; set; } = 1.5;
 
+        /// <summary>The user is dragging</summary>
+        public event Action<DragProperties>? Dragging;
+
+        /// <summary>The user stopped dragging</summary>
+        public event Action<DragProperties>? DraggingStopped;
+
         /// <summary>The user has moved the child</summary>
         public event Action<double, double>? PositionChanged;
-
-        /// <summary>The user stopped moving the child</summary>
-        public event Action<Rect>? MovementStopped;
 
         /// <summary>The user has changed the zoom</summary>
         public event Action<double>? ZoomChanged;
@@ -133,8 +136,7 @@ namespace GeneaGrab.Views
         }
 
 
-        private Point origin;
-        private Point start;
+        private DragProperties dragProperties;
 
         private void child_MouseLeftButtonDown(object? _, PointerPressedEventArgs e)
         {
@@ -145,8 +147,15 @@ namespace GeneaGrab.Views
             var tt = GetTranslateTransform(Child);
             if (tt == null) return;
 
-            start = pointer.Position;
-            origin = new Point(tt.X, tt.Y);
+            dragProperties = new DragProperties(
+                GetScaleTransform(Child)?.ScaleX ?? 1,
+                Bounds.Size,
+                Child.Bounds.Size,
+                new Point(tt.X, tt.Y),
+                pointer.Position,
+                pointer.Position,
+                pointer.Properties.PointerUpdateKind.GetMouseButton()
+            );
             if (pointer.Properties.IsLeftButtonPressed) Cursor = new Cursor(StandardCursorType.Hand);
             e.Pointer.Capture(Child);
         }
@@ -158,25 +167,17 @@ namespace GeneaGrab.Views
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
 
-            if (MovementStopped == null || e.InitialPressMouseButton != MouseButton.Right) return;
-            var mouse = e.GetCurrentPoint(this).Position;
-            var zoom = GetScaleTransform(Child)?.ScaleX ?? 1;
-            var area = new Rect(start, mouse)
-                .Translate(-origin) // Subtracts image position in the canvas
-                .Translate((Child.Bounds.Size * zoom - Bounds.Size) / 2) // From top-left of the image
-                .Divide(zoom) // Full-scale
-                .Normalize() // Ensure size is positive (if not, it will change the origin)
-                .Intersect(new Rect(Child.Bounds.Size)) // Remove everything outside the image
-                .Round(); // Round values to integers
-            MovementStopped.Invoke(area);
+            if (DraggingStopped == null) return;
+            dragProperties.End = e.GetCurrentPoint(this).Position;
+            DraggingStopped.Invoke(dragProperties);
         }
 
         private void child_MouseMove(object? _, PointerEventArgs e)
         {
             if (Child is null || !Equals(e.Pointer.Captured, Child)) return;
-            var pointer = e.GetCurrentPoint(this);
-            if (!pointer.Properties.IsLeftButtonPressed) return;
-            MoveTo(origin + pointer.Position - start);
+            dragProperties.End = e.GetCurrentPoint(this).Position;
+            if (dragProperties.PressedButton == MouseButton.Left) MoveTo(dragProperties.Position);
+            Dragging?.Invoke(dragProperties);
         }
 
         private void MoveTo(Point p) => MoveTo(p.X, p.Y);
@@ -194,5 +195,21 @@ namespace GeneaGrab.Views
         }
 
         #endregion
+    }
+
+    public class DragProperties(double zoom, Size parentSize, Size childSize, Point origin, Point start, Point end, MouseButton pressedButton)
+    {
+        public Point End { get; internal set; } = end;
+        public MouseButton PressedButton => pressedButton;
+
+        public Rect Area => new Rect(start, End)
+            .Translate(-origin) // Subtracts image position in the canvas
+            .Translate((childSize * zoom - parentSize) / 2) // From top-left of the image
+            .Divide(zoom) // Full-scale
+            .Normalize() // Ensure size is positive (if not, it will change the origin)
+            .Intersect(new Rect(childSize)) // Remove everything outside the image
+            .Round(); // Round values to integers
+
+        public Point Position => origin + End - start;
     }
 }
