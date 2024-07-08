@@ -16,6 +16,7 @@ namespace GeneaGrab.Services;
 public class DatabaseContext : DbContext
 {
     private sealed class JsonConverter<T>() : ValueConverter<T, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<T>(v)!);
+    private sealed class RectConverter() : ValueConverter<Rect, string>(v => v.ToString(), v => Rect.Parse(v));
 
     public DbSet<Registry> Registries { get; set; } = null!;
     public DbSet<Frame> Frames { get; set; } = null!;
@@ -39,7 +40,7 @@ public class DatabaseContext : DbContext
         modelBuilder
             .Entity<Record>(e =>
             {
-                e.Property(b => b.Position).HasConversion<JsonConverter<Rect>>();
+                e.Property(b => b.Position).HasConversion<RectConverter>();
                 e.HasOne(r => r.Frame).WithMany().HasForeignKey(r => new { r.ProviderId, r.RegistryId, r.FrameNumber });
             })
             .Entity<Registry>(e =>
