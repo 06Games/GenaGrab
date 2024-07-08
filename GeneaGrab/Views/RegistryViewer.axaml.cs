@@ -112,8 +112,9 @@ namespace GeneaGrab.Views
             {
                 RemoveRectangle(draggedRectangle);
                 draggedRectangle = null;
-                if (dragProperties.PressedButton == MouseButton.Right)
-                    AddIndex(dragProperties.Area);
+                Rect area;
+                if (dragProperties.PressedButton == MouseButton.Right && (area = dragProperties.Area) is { Width: > 20, Height: > 20 })
+                    AddIndex(area);
             };
         }
 
@@ -193,7 +194,7 @@ namespace GeneaGrab.Views
             if (info == null) return (false, false);
 
             await using var db = new DatabaseContext();
-            var registry = db.Registries.Where(r => r.ProviderId == info.ProviderId && r.Id == info.RegistryId).Include(r => r.Frames).FirstOrDefault();
+            var registry = await db.Registries.Where(r => r.ProviderId == info.ProviderId && r.Id == info.RegistryId).Include(r => r.Frames).FirstOrDefaultAsync();
             if (registry is null && uri != null)
             {
                 var provider = Data.Providers[info.ProviderId];
@@ -379,7 +380,7 @@ namespace GeneaGrab.Views
         private void DisplayIndexRectangle(Record? index)
         {
             if (index?.Position is null) return;
-            var btn = DrawRectangle(index.Position.Value, index.Id);
+            var btn = DrawRectangle(index.Position.Value);
             var tt = new ToolTip { Content = index.ToString() };
             ToolTip.SetTip(btn, tt);
 
@@ -390,20 +391,18 @@ namespace GeneaGrab.Views
             };
         }
 
-
-        private readonly Color[] colors = [Colors.ForestGreen, Colors.RoyalBlue];
-        private Border DrawRectangle(Rect rect, int id = -1) => DrawRectangle(rect, id < 0 ? Colors.Coral : colors[id % colors.Length]);
-        private Border DrawRectangle(Rect rect, Color color)
+        private Border DrawRectangle(Rect rect, Color? color = null)
         {
+            color ??= Colors.RoyalBlue;
             var rectangle = new Border
             {
-                Background = new SolidColorBrush(color, .3),
-                BorderBrush = new SolidColorBrush(color),
+                Background = new SolidColorBrush(color.Value, .1),
+                BorderBrush = new SolidColorBrush(color.Value),
                 BorderThickness = new Thickness(2),
                 CornerRadius = new CornerRadius(5)
             };
-            rectangle.Styles.Add(new Style { Setters = { new Setter(OpacityProperty, .2d) } });
-            rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .4d) } });
+            rectangle.Styles.Add(new Style { Setters = { new Setter(OpacityProperty, .4d) } });
+            rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .8d) } });
 
             ImageCanvas.Children.Add(rectangle);
             UpdateRectangle(rectangle, rect);
