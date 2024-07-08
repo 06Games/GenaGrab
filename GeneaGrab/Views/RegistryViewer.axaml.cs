@@ -104,7 +104,7 @@ namespace GeneaGrab.Views
 
             ImagePanel.Dragging += dragProperties =>
             {
-                if (dragProperties.PressedButton != MouseButton.Right) return;
+                if (dragProperties is not { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.Shift }) return;
                 if (draggedRectangle == null) draggedRectangle = DrawRectangle(dragProperties.Area);
                 else UpdateRectangle(draggedRectangle, dragProperties.Area);
             };
@@ -113,7 +113,7 @@ namespace GeneaGrab.Views
                 RemoveRectangle(draggedRectangle);
                 draggedRectangle = null;
                 Rect area;
-                if (dragProperties.PressedButton == MouseButton.Right && (area = dragProperties.Area) is { Width: > 20, Height: > 20 })
+                if (dragProperties is { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.Shift } && (area = dragProperties.Area) is { Width: > 20, Height: > 20 })
                     AddIndex(area);
             };
         }
@@ -386,8 +386,15 @@ namespace GeneaGrab.Views
 
             btn.PointerPressed += (_, e) =>
             {
-                if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed || e.ClickCount != 2) return;
-                // TODO
+                var properties = new DragProperties.Keys(e);
+                switch (properties)
+                {
+                    case { PressedButton: MouseButton.Right, KeyModifiers: KeyModifiers.Shift, ClickCount: 1 }:
+                        RemoveIndex(index);
+                        break;
+                    case { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.None, ClickCount: 2 }:
+                        break;
+                }
             };
         }
 

@@ -136,7 +136,7 @@ namespace GeneaGrab.Views
         }
 
 
-        private DragProperties dragProperties;
+        private DragProperties? dragProperties;
 
         private void child_MouseLeftButtonDown(object? _, PointerPressedEventArgs e)
         {
@@ -154,15 +154,15 @@ namespace GeneaGrab.Views
                 new Point(tt.X, tt.Y),
                 pointer.Position,
                 pointer.Position,
-                pointer.Properties.PointerUpdateKind.GetMouseButton()
+                new DragProperties.Keys(pointer.Properties.PointerUpdateKind.GetMouseButton(), e.KeyModifiers)
             );
-            if (pointer.Properties.IsLeftButtonPressed) Cursor = new Cursor(StandardCursorType.Hand);
+            if (dragProperties is { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.None }) Cursor = new Cursor(StandardCursorType.Hand);
             e.Pointer.Capture(Child);
         }
 
         private void child_MouseLeftButtonUp(object? _, PointerReleasedEventArgs e)
         {
-            if (Child is null) return;
+            if (Child is null || dragProperties is null) return;
 
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
@@ -174,9 +174,9 @@ namespace GeneaGrab.Views
 
         private void child_MouseMove(object? _, PointerEventArgs e)
         {
-            if (Child is null || !Equals(e.Pointer.Captured, Child)) return;
+            if (Child is null || dragProperties is null || !Equals(e.Pointer.Captured, Child)) return;
             dragProperties.End = e.GetCurrentPoint(this).Position;
-            if (dragProperties.PressedButton == MouseButton.Left) MoveTo(dragProperties.Position);
+            if (dragProperties is { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.None }) MoveTo(dragProperties.Position);
             Dragging?.Invoke(dragProperties);
         }
 
@@ -197,10 +197,16 @@ namespace GeneaGrab.Views
         #endregion
     }
 
-    public class DragProperties(double zoom, Size parentSize, Size childSize, Point origin, Point start, Point end, MouseButton pressedButton)
+    public class DragProperties(double zoom, Size parentSize, Size childSize, Point origin, Point start, Point end, DragProperties.Keys keys)
     {
+        public readonly record struct Keys(MouseButton PressedButton, KeyModifiers KeyModifiers, int ClickCount = 1)
+        {
+            public Keys(PointerPressedEventArgs e) : this(e.GetCurrentPoint(null).Properties.PointerUpdateKind.GetMouseButton(), e.KeyModifiers, e.ClickCount) { }
+        }
+
         public Point End { get; internal set; } = end;
-        public MouseButton PressedButton => pressedButton;
+        public MouseButton PressedButton => keys.PressedButton;
+        public KeyModifiers KeyModifiers => keys.KeyModifiers;
 
         public Rect Area => new Rect(start, End)
             .Translate(-origin) // Subtracts image position in the canvas
