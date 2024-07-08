@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Vector = Avalonia.Vector;
 
 namespace GeneaGrab.Views
 {
@@ -92,7 +93,7 @@ namespace GeneaGrab.Views
             if (st != null)
             {
                 var scale = Vector.One;
-                if (Child.Bounds.Width != 0 && Child.Bounds.Height != 0) scale = size / Child.Bounds.Size;
+                if (Child.Bounds.Size != default) scale = size / Child.Bounds.Size;
                 st.ScaleX = st.ScaleY = Math.Min(scale.X, scale.Y);
             }
 
@@ -134,10 +135,13 @@ namespace GeneaGrab.Views
         {
             if (Child is null) return;
 
+            var pointer = e.GetCurrentPoint(this);
+            if (!pointer.Properties.IsLeftButtonPressed) return;
+
             var tt = GetTranslateTransform(Child);
             if (tt == null) return;
 
-            start = e.GetCurrentPoint(this).Position;
+            start = pointer.Position;
             origin = new Point(tt.X, tt.Y);
             Cursor = new Cursor(StandardCursorType.Hand);
             e.Pointer.Capture(Child);
