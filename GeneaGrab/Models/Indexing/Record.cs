@@ -8,29 +8,23 @@ using GeneaGrab.Core.Models.Dates;
 namespace GeneaGrab.Models.Indexing;
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-public class Record
+public class Record(string providerId, string registryId, int frameNumber)
 {
     public Record(Registry registry, Frame frame) : this(registry.ProviderId, registry.Id, frame.FrameNumber) { }
-    public Record(string providerId, string registryId, int frameNumber)
-    {
-        ProviderId = providerId;
-        RegistryId = registryId;
-        FrameNumber = frameNumber;
-    }
 
     /// <summary>Automatically generated record id</summary>
     public int Id { get; private set; }
 
     // ============ Document ============
     /// <summary>(Internal) Id of the platform of the document</summary>
-    public string ProviderId { get; private set; }
+    public string ProviderId { get; private set; } = providerId;
     /// <summary>(Internal) Id of the document</summary>
-    public string RegistryId { get; private set; }
+    public string RegistryId { get; private set; } = registryId;
     /// <summary>The document</summary>
     public Registry? Registry { get; private set; }
     /// <summary>Frame number</summary>
     /// <remarks>A frame can contain multiple pages</remarks>
-    public int FrameNumber { get; private set; }
+    public int FrameNumber { get; private set; } = frameNumber;
     /// <summary>The frame</summary>
     public Frame? Frame { get; private set; }
     /// <summary>Ark url</summary>

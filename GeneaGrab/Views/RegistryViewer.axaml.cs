@@ -344,7 +344,7 @@ namespace GeneaGrab.Views
         {
             if (Registry == null || Frame == null) return;
             using var db = new DatabaseContext();
-            db.Records.Add(new Record(Registry.ProviderId, Registry.Id, Frame.FrameNumber)
+            db.Records.Add(new Record(Registry, Frame)
             {
                 Position = position
             });

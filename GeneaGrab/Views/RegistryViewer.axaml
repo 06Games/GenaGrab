@@ -7,6 +7,8 @@
              xmlns:indexing="clr-namespace:GeneaGrab.Models.Indexing"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:controlsp="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
+             xmlns:helpers="clr-namespace:GeneaGrab.Helpers"
+             xmlns:models="clr-namespace:GeneaGrab.Core.Models;assembly=GeneaGrab.Core"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GeneaGrab.Views.RegistryViewer">
     <Design.DataContext>
@@ -131,14 +133,24 @@
                             <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="RecordList">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="indexing:Record">
-                                        <Grid RowDefinitions="*" ColumnDefinitions="*,*">
-                                            <Grid ColumnSpan="2" ColumnDefinitions="*,26">
+                                        <StackPanel>
+                                            <Grid ColumnDefinitions="*,26">
                                                 <TextBlock Text="{Binding Id}" FontSize="12" VerticalAlignment="Center" />
                                                 <Button Grid.Column="1" Padding="5" Click="RemoveIndex">
                                                     <controls:SymbolIcon Symbol="Delete" />
                                                 </Button>
                                             </Grid>
-                                        </Grid>
+                                            <Expander Header="Global informations">
+                                                <StackPanel>
+                                                    <CalendarDatePicker SelectedDate="{Binding Date.GregorianDateTime}" HorizontalAlignment="Stretch" />
+                                                    <ComboBox SelectedValue="{Binding Type}" ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}" HorizontalAlignment="Stretch" />
+                                                    <TextBox Watermark="City" Text="{Binding City}" HorizontalAlignment="Stretch" />
+                                                    <TextBox Watermark="Parish" Text="{Binding Parish}" HorizontalAlignment="Stretch" />
+                                                    <TextBox Watermark="District" Text="{Binding District}" HorizontalAlignment="Stretch" />
+                                                    <TextBox Watermark="Road" Text="{Binding Road}" HorizontalAlignment="Stretch" />
+                                                </StackPanel>
+                                            </Expander>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
