@@ -116,4 +116,7 @@
     <data name="Provider.AMNice" xml:space="preserve">
         <value>Archives Nice Côte d'Azur</value>
     </data>
+    <data name="Registry.Type.Divorce" xml:space="preserve">
+        <value>Divorces</value>
+    </data>
 </root>

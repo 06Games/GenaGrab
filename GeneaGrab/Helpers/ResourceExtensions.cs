@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using Avalonia.Data.Converters;
 using GeneaGrab.Strings;
 
@@ -29,22 +30,25 @@ public class ResourceConverter : IValueConverter
         if (!targetType.IsAssignableFrom(typeof(string))) throw new NotSupportedException();
         return GetLocalized(value?.ToString(), parameter as string, culture);
     }
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (!targetType.IsEnum || value is not string translatedText) throw new NotSupportedException();
+        return targetType.GetEnumValues().Cast<object>().FirstOrDefault(enumValue => GetLocalized(enumValue?.ToString(), parameter as string, culture) == translatedText);
+    }
 
     public static string? GetLocalized(string? value, string? param, CultureInfo culture)
     {
         if (value is null) return null;
         var res = ResourceExtensions.Resource.UI;
-        var cat = string.Empty;
-        if (param is null) return ResourceExtensions.GetLocalized($"{cat}.{value}", culture, res);
-        if (param.Contains('@'))
+
+        var cat = param;
+        var parameters = param?.Split('@');
+        if (parameters is not null && parameters.Length == 2)
         {
-            var parameters = param.Split('@');
-            if (parameters.Length != 2) return ResourceExtensions.GetLocalized($"{cat}.{value}", culture, res);
             if (Enum.TryParse(parameters[0], out ResourceExtensions.Resource parsedRes)) res = parsedRes;
             cat = parameters[1];
         }
-        else cat = param;
-        return ResourceExtensions.GetLocalized($"{cat}.{value}", culture, res);
+
+        return ResourceExtensions.GetLocalized(cat == null ? value : $"{cat}.{value}", culture, res) ?? value;
     }
 }

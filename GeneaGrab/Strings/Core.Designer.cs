@@ -312,6 +312,15 @@ namespace GeneaGrab.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Divorces.
+        /// </summary>
+        public static string Registry_Type_Divorce {
+            get {
+                return ResourceManager.GetString("Registry.Type.Divorce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Engrossments.
         /// </summary>
         public static string Registry_Type_Engrossments {

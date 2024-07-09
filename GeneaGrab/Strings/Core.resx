@@ -130,6 +130,9 @@
     <value>Table of marriages</value>
         <comment>Table of marriage certificates</comment>
   </data>
+    <data name="Registry.Type.Divorce" xml:space="preserve">
+    <value>Divorces</value>
+  </data>
     <data name="Registry.Type.Military" xml:space="preserve">
     <value>Military</value>
         <comment>Military numbers</comment>
