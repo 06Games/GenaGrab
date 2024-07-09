@@ -8,8 +8,10 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="GeneaGrab.Views.MainWindow"
         Icon="/Assets/Logo/Icon.png"
-        Title="GeneaGrab">
-    
+        Title="GeneaGrab"
+        MinWidth="800"
+        MinHeight="480">
+
     <Design.DataContext>
         <views:MainWindow />
     </Design.DataContext>
@@ -52,7 +54,8 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-                        <AutoCompleteBox Name="SearchBox" AsyncPopulator="PopulateAsync" FilterMode="None" ValueMemberBinding="{Binding Text}" SelectionChanged="RegistrySearch_SuggestionChosen" Watermark="{x:Static strings:Core.Registry_Name}" />
+                        <AutoCompleteBox Name="SearchBox" AsyncPopulator="PopulateAsync" FilterMode="None" ValueMemberBinding="{Binding Text}" SelectionChanged="RegistrySearch_SuggestionChosen"
+                                         Watermark="{x:Static strings:Core.Registry_Name}" />
                     </StackPanel>
                     <views:WindowsTitleBar Grid.Column="2" VerticalAlignment="Stretch" />
                 </Grid>
