@@ -143,7 +143,14 @@
                                             <Expander Header="Global informations">
                                                 <StackPanel>
                                                     <CalendarDatePicker SelectedDate="{Binding Date.GregorianDateTime}" HorizontalAlignment="Stretch" />
-                                                    <ComboBox SelectedValue="{Binding Type}" ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}" HorizontalAlignment="Stretch" />
+                                                    <ComboBox HorizontalAlignment="Stretch" SelectedValue="{Binding Type}"
+                                                              ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding ConverterParameter='Core@Registry.Type', Converter={StaticResource Translate}}" />
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
                                                     <TextBox Watermark="City" Text="{Binding City}" HorizontalAlignment="Stretch" />
                                                     <TextBox Watermark="Parish" Text="{Binding Parish}" HorizontalAlignment="Stretch" />
                                                     <TextBox Watermark="District" Text="{Binding District}" HorizontalAlignment="Stretch" />
