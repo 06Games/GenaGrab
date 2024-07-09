@@ -85,9 +85,9 @@
                 </controls:NavigationView.MenuItems>
 
                 <Grid FlowDirection="LeftToRight" Margin="15" RowDefinitions="*,150" Name="SidePanel">
-                    <ScrollViewer>
-                        <Panel Name="SideContent">
-                            <StackPanel Tag="Info" Spacing="15">
+                    <Panel Name="SideContent">
+                        <ScrollViewer Tag="Info">
+                            <StackPanel Spacing="15">
                                 <StackPanel>
                                     <TextBlock FontSize="18" FontWeight="Medium" Text="{Binding Registry.Location, FallbackValue='', Converter={StaticResource JoinConverter}}" TextWrapping="Wrap" />
                                     <TextBlock Text="{Binding Registry.Types, FallbackValue='', ConverterParameter='Core@Registry.Type', Converter={StaticResource JoinConverter}}" FontSize="18"
@@ -113,31 +113,29 @@
                                              BorderBrush="Transparent" AcceptsReturn="True" Padding="0" />
                                 </StackPanel>
                             </StackPanel>
+                        </ScrollViewer>
 
-                            <StackPanel Tag="Index">
-                                <Grid ColumnDefinitions="*,26">
-                                    <TextBlock Grid.Column="0" FontSize="16" Text="Index" />
-                                    <Button Grid.Column="1" Padding="5" Click="AddIndex">
-                                        <controls:SymbolIcon Symbol="Add" />
-                                    </Button>
-                                </Grid>
-                                <ListBox MaxHeight="500" Name="RecordList">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="indexing:Record">
-                                            <Grid RowDefinitions="*" ColumnDefinitions="*,*">
-                                                <Grid ColumnSpan="2" ColumnDefinitions="*,26">
-                                                    <TextBlock Text="{Binding Id}" FontSize="12" VerticalAlignment="Center" />
-                                                    <Button Grid.Column="1" Padding="5" Click="RemoveIndex">
-                                                        <controls:SymbolIcon Symbol="Delete" />
-                                                    </Button>
-                                                </Grid>
+                        <Grid Tag="Index" RowDefinitions="Auto,*" ColumnDefinitions="*,26">
+                            <TextBlock Grid.Column="0" FontSize="16" Text="Index" />
+                            <Button Grid.Row="0" Grid.Column="1" Padding="5" Click="AddIndex">
+                                <controls:SymbolIcon Symbol="Add" />
+                            </Button>
+                            <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="RecordList">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="indexing:Record">
+                                        <Grid RowDefinitions="*" ColumnDefinitions="*,*">
+                                            <Grid ColumnSpan="2" ColumnDefinitions="*,26">
+                                                <TextBlock Text="{Binding Id}" FontSize="12" VerticalAlignment="Center" />
+                                                <Button Grid.Column="1" Padding="5" Click="RemoveIndex">
+                                                    <controls:SymbolIcon Symbol="Delete" />
+                                                </Button>
                                             </Grid>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </StackPanel>
-                        </Panel>
-                    </ScrollViewer>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Panel>
 
                     <StackPanel Spacing="15" VerticalAlignment="Bottom" Grid.Row="1">
                         <Button Width="{Binding Bounds.Width, ElementName=SidePanel}" Click="Download">
