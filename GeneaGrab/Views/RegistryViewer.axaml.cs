@@ -372,7 +372,12 @@ namespace GeneaGrab.Views
             ImageCanvas.Children.Clear();
 
             using var db = new DatabaseContext();
-            var indexes = db.Records.Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber).ToList();
+            var indexes = db.Records
+                .Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber)
+                .AsEnumerable()
+                .OrderBy(r => r.Position?.Y ?? 0)
+                .ThenBy(r => r.Position?.X ?? 0)
+                .ToList();
             RecordList.ItemsSource = indexes;
             foreach (var index in indexes)
                 DisplayIndexRectangle(index);
