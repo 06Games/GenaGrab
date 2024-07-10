@@ -156,7 +156,13 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test --logger trx --results-directory test-results /p:CollectCoverage=true /p:CoverletOutput=$GITHUB_WORKSPACE/.qodana/code-coverage/ /p:CoverletOutputFormat=lcov
+          dotnet test --logger trx --results-directory test-results /p:CollectCoverage=true /p:CoverletOutput=$GITHUB_WORKSPACE/.qodana/code-coverage/lcov.info /p:CoverletOutputFormat=lcov
+
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1.3.0
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: .qodana/code-coverage/*.info
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/linux@v2
@@ -168,7 +174,7 @@ jobs:
             test-results/**/*.trx
             test-results/**/*.json
 
-      - name: Qodana Scan
+      - name: Qodana scan
         uses: JetBrains/qodana-action@main
         if: '!cancelled()'
         env:
