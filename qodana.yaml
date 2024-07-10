@@ -7,8 +7,8 @@ version: "1.0"
 ide: QDNET
 #Specify inspection profile for code analysis
 profile:
-  name: qodana.starter
-  
+  name: qodana.recommended
+
 dependencyOverrides:
   - name: "Gedcomx.Model" # License not detected
     version: "1.0.6144.20322"
