@@ -10,14 +10,19 @@ profile:
   name: qodana.starter
   
 dependencyOverrides:
-  - name: "Gedcomx.Model"
+  - name: "Gedcomx.Model" # License not detected
     version: "1.0.6144.20322"
     url: "https://github.com/FamilySearch/gedcomx-csharp"
     licenses:
       - key: "Apache-2.0"
         url: "https://github.com/FamilySearch/gedcomx-csharp/blob/master/LICENSE.txt"
-  - name: "Avalonia.BuildServices"
+  - name: "Avalonia.BuildServices" # License not detected
     version: "0.0.29"
     url: "https://www.nuget.org/packages/Avalonia.BuildServices"
     licenses:
       - key: "MIT"
+  - name: "SixLabors.ImageSharp" # Only the apache license applies
+    version: "3.1.4"
+    url: "https://github.com/SixLabors/ImageSharp"
+    licenses:
+      - key: "Apache-2.0"
