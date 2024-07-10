@@ -3,11 +3,8 @@ using Xunit.Abstractions;
 
 namespace GeneaGrab.Core.Tests.Dates;
 
-public class DateTest
+public class DateTest(ITestOutputHelper output)
 {
-    private readonly ITestOutputHelper output;
-    public DateTest(ITestOutputHelper output) { this.output = output; }
-
     public static IEnumerable<object[]> ParserData()
     {
         yield return ["17/01/1420", new JulianDate(1420, 1, 17, precision: Precision.Days)];

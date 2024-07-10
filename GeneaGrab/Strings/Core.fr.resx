@@ -119,4 +119,8 @@
     <data name="Registry.Type.Divorce" xml:space="preserve">
         <value>Divorces</value>
     </data>
+    <data name="Provider.Antenati" xml:space="preserve">
+    <value>Antenati</value>
+        <comment>antenati.san.beniculturali.it</comment>
+  </data>
 </root>

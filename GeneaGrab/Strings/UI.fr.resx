@@ -80,4 +80,7 @@
     <data name="Settings.Authentication.Username" xml:space="preserve">
         <value>Nom d'utilisateur</value>
     </data>
+    <data name="Registry.PageCount" xml:space="preserve">
+        <value>{0} pages</value>
+    </data>
 </root>

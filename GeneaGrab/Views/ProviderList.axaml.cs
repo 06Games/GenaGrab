@@ -14,7 +14,7 @@ public partial class ProviderList : Page, ITabPage
     public Symbol IconSource => Symbol.World;
     public string? DynaTabHeader => null;
     public string? Identifier => null;
-    public Task RichPresence(RichPresence richPresence) => Task.CompletedTask;
+    public Task GetRichPresenceAsync(RichPresence richPresence) => Task.CompletedTask;
 
     public ProviderList()
     {

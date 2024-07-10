@@ -30,7 +30,7 @@ public interface ITabPage
     Symbol IconSource { get; }
     string? DynaTabHeader { get; }
     string? Identifier { get; }
-    Task RichPresence(RichPresence richPresence);
+    Task GetRichPresenceAsync(RichPresence richPresence);
 }
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
@@ -133,7 +133,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     SmallImageText = defaultName?[..Math.Min(defaultName.Length, 96)]
                 }
             };
-            if (frameData != null) await frameData.RichPresence(rp);
+            if (frameData != null) await frameData.GetRichPresenceAsync(rp);
             (Application.Current as App)?.Discord.SetPresence(rp);
         }).ContinueWith(t =>
         {

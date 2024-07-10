@@ -4,11 +4,9 @@ using Xunit.Abstractions;
 
 namespace GeneaGrab.Core.Tests.Providers.FR_AMNice;
 
-public class TestAMNice
+public class TestAMNice(ITestOutputHelper output)
 {
     private readonly Nice instance = new();
-    private readonly ITestOutputHelper output;
-    public TestAMNice(ITestOutputHelper output) { this.output = output; }
 
     [Theory(DisplayName = "Check information retriever")]
     [ClassData(typeof(DataAMNice))]

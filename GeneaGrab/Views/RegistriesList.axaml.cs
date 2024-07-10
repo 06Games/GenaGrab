@@ -19,7 +19,7 @@ public partial class RegistriesPage : Page, ITabPage
     public Symbol IconSource => Symbol.Library;
     public string? DynaTabHeader => ResourceExtensions.GetLocalized($"Provider.{Provider?.Id}") ?? Provider?.Id;
     public string? Identifier => Provider?.Id;
-    public Task RichPresence(RichPresence richPresence) => Task.CompletedTask;
+    public Task GetRichPresenceAsync(RichPresence richPresence) => Task.CompletedTask;
     private Provider? Provider { get; set; }
 
     public RegistriesPage()

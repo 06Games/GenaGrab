@@ -31,22 +31,22 @@ public static class NavigationService
             RegisterTabViewEvents();
         }
     }
-    static void RegisterTabViewEvents()
+    private static void RegisterTabViewEvents()
     {
         if (_tabView is null) return;
         _tabView.SelectionChanged += TabView_SelectionChanged;
     }
-    static void UnregisterTabViewEvents()
+    private static void UnregisterTabViewEvents()
     {
         if (_tabView is null) return;
         _tabView.SelectionChanged -= TabView_SelectionChanged;
     }
-    static void TabView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private static void TabView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         TabOpenned();
         SelectionChanged?.Invoke(sender, e);
     }
-    static void TabOpenned()
+    private static void TabOpenned()
     {
         if (TabView?.SelectedItem is TabViewItem tab) Frame = tab.Content as Frame;
     }
@@ -72,7 +72,7 @@ public static class NavigationService
     {
         if (TabView?.SelectedItem is TabViewItem tab) return CloseTab(tab);
         return false;
-    } 
+    }
     public static bool CloseTab(TabViewItem tab)
     {
         if (!tab.IsClosable || TabView == null) return false;
@@ -106,7 +106,7 @@ public static class NavigationService
     public static Frame? Frame
     {
         get => _frame;
-        set
+        private set
         {
             UnregisterFrameEvents();
             _frame = value;

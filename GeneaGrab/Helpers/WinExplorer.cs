@@ -35,12 +35,12 @@ public static class WinExplorer
 
         var folderPath = Path.GetDirectoryName(filePath);
         if (folderPath is null) return;
-        
+
         SHParseDisplayName(folderPath, IntPtr.Zero, out var nativeFolder, 0, out _);
         if (nativeFolder == IntPtr.Zero) return; // Log error, can't find folder
 
         SHParseDisplayName(Path.Combine(folderPath, filePath), IntPtr.Zero, out var nativeFile, 0, out _);
-        var fileArray = nativeFile == IntPtr.Zero ? Array.Empty<IntPtr>() : new[] { nativeFile }; // Open the folder without the file selected if we can't find the file
+        IntPtr[] fileArray = nativeFile == IntPtr.Zero ? [] : [nativeFile]; // Open the folder without the file selected if we can't find the file
 
         var hresult = SHOpenFolderAndSelectItems(nativeFolder, (uint)fileArray.Length, fileArray, 0);
         Marshal.ThrowExceptionForHR(hresult); // Throw any error that could have occured
