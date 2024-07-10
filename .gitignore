@@ -151,6 +151,9 @@ _TeamCity*
 # Coverlet is a free, cross platform Code Coverage Tool
 coverage*[.json, .xml, .info]
 
+# Qodana
+.qodana/
+
 # Visual Studio code coverage results
 *.coverage
 *.coveragexml

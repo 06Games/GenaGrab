@@ -1,0 +1,23 @@
+﻿#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+#Specify IDE code to run analysis without container (Applied in CI/CD pipeline)
+ide: QDNET
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+  
+dependencyOverrides:
+  - name: "Gedcomx.Model"
+    version: "1.0.6144.20322"
+    url: "https://github.com/FamilySearch/gedcomx-csharp"
+    licenses:
+      - key: "Apache-2.0"
+        url: "https://github.com/FamilySearch/gedcomx-csharp/blob/master/LICENSE.txt"
+  - name: "Avalonia.BuildServices"
+    version: "0.0.29"
+    url: "https://www.nuget.org/packages/Avalonia.BuildServices"
+    licenses:
+      - key: "MIT"

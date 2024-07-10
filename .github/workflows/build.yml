@@ -154,7 +154,8 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test --logger trx --results-directory test-results
+          dotnet add GeneaGrab.Core.Tests package coverlet.msbuild
+          dotnet test --logger trx --results-directory test-results /p:CollectCoverage=true /p:CoverletOutput=.qodana/code-coverage /p:CoverletOutputFormat=lcov
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/linux@v2
@@ -165,3 +166,9 @@ jobs:
             test-results/**/*.xml
             test-results/**/*.trx
             test-results/**/*.json
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@main
+        if: '!cancelled()'
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
