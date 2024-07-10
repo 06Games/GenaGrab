@@ -26,3 +26,6 @@ dependencyOverrides:
     url: "https://github.com/SixLabors/ImageSharp"
     licenses:
       - key: "Apache-2.0"
+
+exclude:
+  - name: NetCoverageInspection
