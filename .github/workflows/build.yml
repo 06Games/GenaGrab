@@ -150,12 +150,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install dependencies
-        run: dotnet restore
+        run: |
+          dotnet restore
+          dotnet add GeneaGrab.Core.Tests package coverlet.msbuild
 
       - name: Test
         run: |
-          dotnet add GeneaGrab.Core.Tests package coverlet.msbuild
-          dotnet test --logger trx --results-directory test-results /p:CollectCoverage=true /p:CoverletOutput=.qodana/code-coverage /p:CoverletOutputFormat=lcov
+          dotnet test --logger trx --results-directory test-results /p:CollectCoverage=true /p:CoverletOutput=$GITHUB_WORKSPACE/.qodana/code-coverage/ /p:CoverletOutputFormat=lcov
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/linux@v2
