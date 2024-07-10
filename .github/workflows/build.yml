@@ -164,6 +164,12 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: .qodana/code-coverage/*.info
 
+      - name: Upload coverage to Github Action Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: .qodana/code-coverage/
+
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/linux@v2
         if: always()
