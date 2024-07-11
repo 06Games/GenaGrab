@@ -88,6 +88,13 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
                 child.IsVisible = child.Tag == tag;
         };
         SideNav.SelectedItem = SideNav.MenuItems.FirstOrDefault();
+        BottomNav.SelectionChanged += (_, _) =>
+        {
+            var tag = BottomNav.SelectedItem is NavigationViewItem item ? item.Tag : null;
+            foreach (var child in BottomContent.Children)
+                child.IsVisible = child.Tag == tag;
+        };
+        BottomNav.SelectedItem = BottomNav.MenuItems.FirstOrDefault();
 
         FrameNotes.TextChanging += (_, _) => Task.Run(() => SaveAsync(Frame).ContinueWith(_ =>
         {

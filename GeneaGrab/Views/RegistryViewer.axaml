@@ -19,7 +19,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="1" />
-            <RowDefinition MinHeight="62.5" Height="235" MaxHeight="500" />
+            <RowDefinition MinHeight="62.5" Height="275" MaxHeight="500" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -40,43 +40,88 @@
 
         <GridSplitter Grid.Row="1" Grid.Column="0" Background="#FF383838" ResizeDirection="Rows" />
 
-        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Grid.Column="0">
-            <RelativePanel Margin="15">
-                <StackPanel Orientation="Horizontal">
-                    <controls:NumberBox Name="PageNumber" PlaceholderText="Page" Minimum="1" Width="90" Height="32.5" />
-                    <TextBlock Name="PageTotal" Text="/ ?" Margin="10 6.25 0 0" Height="20" VerticalAlignment="Center" TextAlignment="Center" />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="35.5" Spacing="5" RelativePanel.AlignRightWithPanel="True">
-                    <Button Name="PreviousPage" Click="GoToPreviousPage">
-                        <controls:SymbolIcon Symbol="ChevronLeft" />
-                    </Button>
-                    <Button Name="NextPage" Click="GoToNextPage">
-                        <controls:SymbolIcon Symbol="ChevronRight" />
-                    </Button>
-                </StackPanel>
-                <ListBox Name="PageList" SelectionChanged="ChangePage"
-                         ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                         RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True"
-                         Margin="0 45 0 0 ">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="views:PageList">
-                            <Grid Width="125" Height="{Binding $parent[ListBox].Bounds.Height}" RowDefinitions="*,25,25,15">
-                                <Panel Grid.Row="0">
-                                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center"
-                                           MaxHeight="{Binding $parent.Bounds.Height}" MaxWidth="{Binding $parent.Bounds.Width}" />
-                                </Panel>
-                                <TextBlock Text="{Binding Number}" Margin="0,6,0,0" TextAlignment="Center" Grid.Row="1" />
-                                <TextBlock Text="{Binding Notes}" TextAlignment="Center" FontSize="11" Grid.Row="2" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </RelativePanel>
+        <Border Grid.Row="2" Grid.Column="0">
+            <Grid Margin="15" RowDefinitions="Auto,*" Name="BottomPanel">
+                <RelativePanel>
+                    <StackPanel Orientation="Horizontal">
+                        <controls:NumberBox Name="PageNumber" PlaceholderText="Page" Minimum="1" Width="90" Height="32.5" />
+                        <TextBlock Name="PageTotal" Text="/ ?" Margin="10 6.25 0 0" Height="20" VerticalAlignment="Center" TextAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="35.5" Spacing="5" RelativePanel.AlignRightWithPanel="True">
+                        <Button Name="PreviousPage" Click="GoToPreviousPage">
+                            <controls:SymbolIcon Symbol="ChevronLeft" />
+                        </Button>
+                        <Button Name="NextPage" Click="GoToNextPage">
+                            <controls:SymbolIcon Symbol="ChevronRight" />
+                        </Button>
+                    </StackPanel>
+                </RelativePanel>
+
+                <controls:NavigationView Grid.Row="1" Name="BottomNav" PaneDisplayMode="Top"
+                                         AlwaysShowHeader="False" IsSettingsVisible="False" IsBackEnabled="False" IsPaneToggleButtonVisible="False" OpenPaneLength="40" IsPaneOpen="True">
+                    <controls:NavigationView.Resources>
+                        <!-- ReSharper disable once Xaml.RedundantResource -->
+                        <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+                    </controls:NavigationView.Resources>
+                    <controls:NavigationView.MenuItems>
+                        <controls:NavigationViewItem Content="Pages" Tag="Pages" IconSource="Pictures" />
+                        <controls:NavigationViewItem Content="Records" Tag="Records" IconSource="ContactInfoFilled" />
+                    </controls:NavigationView.MenuItems>
+                    <Panel Name="BottomContent">
+                        <ListBox Tag="Pages" Name="PageList" SelectionChanged="ChangePage" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="views:PageList">
+                                    <Grid Width="125" Height="{Binding $parent[ListBox].Bounds.Height}" RowDefinitions="*,25,25,15">
+                                        <Panel Grid.Row="0">
+                                            <Image Source="{Binding Thumbnail}" VerticalAlignment="Center"
+                                                   MaxHeight="{Binding $parent.Bounds.Height}" MaxWidth="{Binding $parent.Bounds.Width}" />
+                                        </Panel>
+                                        <TextBlock Text="{Binding Number}" Margin="0,6,0,0" TextAlignment="Center" Grid.Row="1" />
+                                        <TextBlock Text="{Binding Notes}" TextAlignment="Center" FontSize="11" Grid.Row="2" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <ListBox Tag="Records" Name="RecordList">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="indexing:Record">
+                                    <StackPanel>
+                                        <Grid ColumnDefinitions="*,26">
+                                            <TextBlock Text="{Binding Id}" FontSize="12" VerticalAlignment="Center" />
+                                            <Button Grid.Column="1" Padding="5" Click="RemoveIndex">
+                                                <controls:SymbolIcon Symbol="Delete" />
+                                            </Button>
+                                        </Grid>
+                                        <Expander Header="Global informations">
+                                            <StackPanel>
+                                                <CalendarDatePicker SelectedDate="{Binding Date.GregorianDateTime}" HorizontalAlignment="Stretch" />
+                                                <ComboBox HorizontalAlignment="Stretch" SelectedValue="{Binding Type}"
+                                                          ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding ConverterParameter='Core@Registry.Type', Converter={StaticResource Translate}}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <TextBox Watermark="City" Text="{Binding City}" HorizontalAlignment="Stretch" />
+                                                <TextBox Watermark="Parish" Text="{Binding Parish}" HorizontalAlignment="Stretch" />
+                                                <TextBox Watermark="District" Text="{Binding District}" HorizontalAlignment="Stretch" />
+                                                <TextBox Watermark="Road" Text="{Binding Road}" HorizontalAlignment="Stretch" />
+                                            </StackPanel>
+                                        </Expander>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Panel>
+                </controls:NavigationView>
+            </Grid>
         </Border>
 
         <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Background="#FF383838" ResizeDirection="Columns" />
@@ -90,8 +135,8 @@
                     </Style>
                 </controls:NavigationView.Styles>
                 <controls:NavigationView.MenuItems>
-                    <controls:NavigationViewItem Content="Menu Item1" Tag="Info" IconSource="Library" />
-                    <controls:NavigationViewItem Content="Index" Tag="Index" IconSource="ContactInfoFilled" />
+                    <controls:NavigationViewItem Content="Registry info" Tag="Info" IconSource="Library" />
+                    <controls:NavigationViewItem Content="Sections" Tag="Sections" IconSource="ShowResults" />
                 </controls:NavigationView.MenuItems>
 
                 <Grid FlowDirection="LeftToRight" Margin="15" RowDefinitions="*,150" Name="SidePanel">
@@ -125,41 +170,13 @@
                             </StackPanel>
                         </ScrollViewer>
 
-                        <Grid Tag="Index" RowDefinitions="Auto,*" ColumnDefinitions="*,26">
-                            <TextBlock Grid.Column="0" FontSize="16" Text="Index" />
-                            <Button Grid.Row="0" Grid.Column="1" Padding="5" Click="AddIndex">
+                        <Grid Tag="Sections" RowDefinitions="Auto,*" ColumnDefinitions="*,26">
+                            <TextBlock Grid.Column="0" FontSize="16" Text="Sections" />
+                            <Button Grid.Row="0" Grid.Column="1" Padding="5">
                                 <controls:SymbolIcon Symbol="Add" />
                             </Button>
-                            <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="RecordList">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="indexing:Record">
-                                        <StackPanel>
-                                            <Grid ColumnDefinitions="*,26">
-                                                <TextBlock Text="{Binding Id}" FontSize="12" VerticalAlignment="Center" />
-                                                <Button Grid.Column="1" Padding="5" Click="RemoveIndex">
-                                                    <controls:SymbolIcon Symbol="Delete" />
-                                                </Button>
-                                            </Grid>
-                                            <Expander Header="Global informations">
-                                                <StackPanel>
-                                                    <CalendarDatePicker SelectedDate="{Binding Date.GregorianDateTime}" HorizontalAlignment="Stretch" />
-                                                    <ComboBox HorizontalAlignment="Stretch" SelectedValue="{Binding Type}"
-                                                              ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}">
-                                                        <ComboBox.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <TextBlock Text="{Binding ConverterParameter='Core@Registry.Type', Converter={StaticResource Translate}}" />
-                                                            </DataTemplate>
-                                                        </ComboBox.ItemTemplate>
-                                                    </ComboBox>
-                                                    <TextBox Watermark="City" Text="{Binding City}" HorizontalAlignment="Stretch" />
-                                                    <TextBox Watermark="Parish" Text="{Binding Parish}" HorizontalAlignment="Stretch" />
-                                                    <TextBox Watermark="District" Text="{Binding District}" HorizontalAlignment="Stretch" />
-                                                    <TextBox Watermark="Road" Text="{Binding Road}" HorizontalAlignment="Stretch" />
-                                                </StackPanel>
-                                            </Expander>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
+                            <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+
                             </ListBox>
                         </Grid>
                     </Panel>
