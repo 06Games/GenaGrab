@@ -25,6 +25,7 @@ using GeneaGrab.Models.Indexing;
 using GeneaGrab.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Threading;
+using NaturalSort.Extension;
 using Button = DiscordRPC.Button;
 using Frame = GeneaGrab.Core.Models.Frame;
 
@@ -382,8 +383,10 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         var indexes = db.Records
             .Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber)
             .AsEnumerable()
-            .OrderBy(r => r.Position?.Y ?? 0)
-            .ThenBy(r => r.Position?.X ?? 0)
+            .OrderBy(r => r.PageNumber, StringComparison.OrdinalIgnoreCase.WithNaturalSort())
+            .ThenBy(r => r.SequenceNumber, StringComparison.OrdinalIgnoreCase.WithNaturalSort())
+            .ThenBy(r => r.Position?.Y)
+            .ThenBy(r => r.Position?.X)
             .ToList();
         RecordList.ItemsSource = indexes;
         foreach (var index in indexes)
