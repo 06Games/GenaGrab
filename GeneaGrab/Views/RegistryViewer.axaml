@@ -19,7 +19,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="1" />
-            <RowDefinition MinHeight="62.5" Height="275" MaxHeight="500" />
+            <RowDefinition MinHeight="62.5" Height="275" MaxHeight="650" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -92,7 +92,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="indexing:Record">
                                     <StackPanel Margin="0,15">
-                                        <Grid ColumnDefinitions="*,*,2*,2*,2*,3*,3*,3*,3*,41">
+                                        <Grid ColumnDefinitions="*,*,3*,3*,3*,3*,2*,2*,2*,41">
                                             <Grid.Styles>
                                                 <Style Selector="TextBox, ComboBox, CalendarDatePicker">
                                                     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -101,7 +101,11 @@
                                             </Grid.Styles>
                                             <TextBox Watermark="Page number" Text="{Binding PageNumber}" />
                                             <TextBox Grid.Column="1" Watermark="Sequence number" Text="{Binding SequenceNumber}" />
-                                            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" SelectedValue="{Binding Type}"
+                                            <TextBox Grid.Column="2" Watermark="City" Text="{Binding City}" />
+                                            <TextBox Grid.Column="3" Watermark="Parish" Text="{Binding Parish}" />
+                                            <TextBox Grid.Column="4" Watermark="District" Text="{Binding District}" />
+                                            <TextBox Grid.Column="5" Watermark="Road" Text="{Binding Road}" />
+                                            <ComboBox Grid.Column="6" HorizontalAlignment="Stretch" SelectedValue="{Binding Type}"
                                                       ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
@@ -109,12 +113,8 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-                                            <ComboBox Grid.Column="3" SelectedValue="Gregorian" />
-                                            <CalendarDatePicker Grid.Column="4" SelectedDate="{Binding Date.GregorianDateTime}" />
-                                            <TextBox Grid.Column="5" Watermark="City" Text="{Binding City}" />
-                                            <TextBox Grid.Column="6" Watermark="Parish" Text="{Binding Parish}" />
-                                            <TextBox Grid.Column="7" Watermark="District" Text="{Binding District}" />
-                                            <TextBox Grid.Column="8" Watermark="Road" Text="{Binding Road}" />
+                                            <ComboBox Grid.Column="7" SelectedValue="Gregorian" />
+                                            <CalendarDatePicker Grid.Column="8" SelectedDate="{Binding Date.GregorianDateTime}" />
                                             <Button Grid.Column="9" Margin="15,0,0,0" Padding="5" Click="RemoveIndex">
                                                 <controls:SymbolIcon Symbol="Delete" />
                                             </Button>
@@ -134,8 +134,8 @@
                                                 <DataGridTextColumn Header="Age" Width="4*" Binding="{Binding Age}" />
                                                 <DataGridTextColumn Header="Civil status" Width="4*" Binding="{Binding CivilStatus}" />
                                                 <DataGridTextColumn Header="Place of origin" Width="4*" Binding="{Binding PlaceOrigin}" />
-                                                <DataGridTextColumn Header="Relation" Width="5*" Binding="{Binding Relation}" />
-                                                <DataGridTextColumn Header="Notes" Width="5*" Binding="{Binding Notes}" />
+                                                <DataGridTextColumn Header="Relation" Width="4*" Binding="{Binding Relation}" />
+                                                <DataGridTextColumn Header="Notes" Width="6*" Binding="{Binding Notes}" />
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </StackPanel>
