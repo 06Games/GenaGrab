@@ -65,7 +65,7 @@
                     </controls:NavigationView.Resources>
                     <controls:NavigationView.MenuItems>
                         <controls:NavigationViewItem Content="Pages" Tag="Pages" IconSource="Pictures" />
-                        <controls:NavigationViewItem Content="Records" Tag="Records" IconSource="ContactInfoFilled" />
+                        <controls:NavigationViewItem Content="Records" Tag="Records" IconSource="ContactInfoFilled" IsEnabled="{Binding HasRecords}" />
                     </controls:NavigationView.MenuItems>
                     <Panel Name="BottomContent">
                         <ListBox Tag="Pages" Name="PageList" SelectionChanged="ChangePage" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Hidden">

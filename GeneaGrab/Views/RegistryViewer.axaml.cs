@@ -347,7 +347,8 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
 
     #region Index
 
-    private void AddIndex(object _, RoutedEventArgs _1) => AddIndex(new Rect(100, 75, 100, 50));
+    private bool HasRecords { get; set; }
+
     private void AddIndex(Rect position)
     {
         if (Registry == null || Frame == null) return;
@@ -389,6 +390,8 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
             .ThenBy(r => r.Position?.X)
             .ToList();
         RecordList.ItemsSource = indexes;
+        HasRecords = indexes.Count > 0;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasRecords)));
         foreach (var index in indexes)
             DisplayIndexRectangle(index);
     }
