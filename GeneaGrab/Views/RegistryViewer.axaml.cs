@@ -383,6 +383,7 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         using var db = new DatabaseContext();
         var indexes = db.Records
             .Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber)
+            .Include(r => r.Persons)
             .AsEnumerable()
             .OrderBy(r => r.PageNumber, StringComparison.OrdinalIgnoreCase.WithNaturalSort())
             .ThenBy(r => r.SequenceNumber, StringComparison.OrdinalIgnoreCase.WithNaturalSort())
