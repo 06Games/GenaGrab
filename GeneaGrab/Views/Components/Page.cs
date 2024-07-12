@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using FluentAvalonia.UI.Navigation;
 
-namespace GeneaGrab.Views;
+namespace GeneaGrab.Views.Components;
 
 public class Page : UserControl
 {

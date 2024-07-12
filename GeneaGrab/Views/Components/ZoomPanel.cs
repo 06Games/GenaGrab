@@ -7,7 +7,7 @@ using Avalonia.Media;
 using GeneaGrab.Helpers;
 using Vector = Avalonia.Vector;
 
-namespace GeneaGrab.Views;
+namespace GeneaGrab.Views.Components;
 
 /// <summary>An element for zooming and moving around an image</summary>
 public class ZoomPanel : Panel

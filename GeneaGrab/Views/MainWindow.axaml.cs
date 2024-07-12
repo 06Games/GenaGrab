@@ -19,6 +19,7 @@ using FluentAvalonia.UI.Controls;
 using GeneaGrab.Core.Models;
 using GeneaGrab.Helpers;
 using GeneaGrab.Services;
+using GeneaGrab.Views.Components;
 using Microsoft.VisualStudio.Threading;
 using Serilog;
 using Frame = FluentAvalonia.UI.Controls.Frame;

@@ -9,6 +9,7 @@
              xmlns:controlsp="clr-namespace:FluentAvalonia.UI.Controls.Primitives;assembly=FluentAvalonia"
              xmlns:helpers="clr-namespace:GeneaGrab.Helpers"
              xmlns:models="clr-namespace:GeneaGrab.Core.Models;assembly=GeneaGrab.Core"
+             xmlns:components="clr-namespace:GeneaGrab.Views.Components"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GeneaGrab.Views.RegistryViewer">
     <Design.DataContext>
@@ -28,13 +29,13 @@
         </Grid.ColumnDefinitions>
 
         <RelativePanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="ViewerRelativePanel">
-            <views:ZoomPanel x:Name="ImagePanel"
-                             RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True">
+            <components:ZoomPanel x:Name="ImagePanel"
+                                  RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignBottomWithPanel="True">
                 <Canvas x:Name="MainGrid">
                     <Image Name="Image" Stretch="Uniform" />
                     <Canvas Name="ImageCanvas" />
                 </Canvas>
-            </views:ZoomPanel>
+            </components:ZoomPanel>
             <ProgressBar Name="ImageProgress" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignBottomWithPanel="True" IsVisible="False" Maximum="1" />
         </RelativePanel>
 

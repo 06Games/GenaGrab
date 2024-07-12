@@ -25,6 +25,7 @@ using GeneaGrab.Core.Models;
 using GeneaGrab.Helpers;
 using GeneaGrab.Models.Indexing;
 using GeneaGrab.Services;
+using GeneaGrab.Views.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Threading;
 using NaturalSort.Extension;

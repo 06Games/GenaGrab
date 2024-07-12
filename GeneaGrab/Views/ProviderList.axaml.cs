@@ -6,6 +6,7 @@ using DynamicData;
 using FluentAvalonia.UI.Controls;
 using GeneaGrab.Core.Models;
 using GeneaGrab.Services;
+using GeneaGrab.Views.Components;
 
 namespace GeneaGrab.Views;
 
