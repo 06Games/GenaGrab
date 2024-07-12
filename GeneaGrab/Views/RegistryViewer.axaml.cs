@@ -4,12 +4,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -412,9 +414,11 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
                     RemoveIndex(index);
                     break;
                 case { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.None, ClickCount: 2 }:
+                    RecordList.SelectedItem = index;
                     break;
             }
         };
+        btn.BindClass("selected", RecordList.GetBindingObservable(SelectingItemsControl.SelectedItemProperty).Select(item => item == index).ToBinding(), null!);
     }
 
     private Border DrawRectangle(Rect rect, Color? color = null)
@@ -429,6 +433,7 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         };
         rectangle.Styles.Add(new Style { Setters = { new Setter(OpacityProperty, .4d) } });
         rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .8d) } });
+        rectangle.Styles.Add(new Style(x => x.Class("selected")) { Setters = { new Setter(OpacityProperty, 1d) } });
 
         ImageCanvas.Children.Add(rectangle);
         UpdateRectangle(rectangle, rect);
