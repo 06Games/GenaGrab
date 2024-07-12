@@ -89,6 +89,12 @@
                         </ListBox>
 
                         <ListBox Tag="Records" Name="RecordList">
+                            <ListBox.Resources>
+                                <!-- Disable hover and pressed background changes when selected -->
+                                <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="{DynamicResource SubtleFillColorSecondary}" />
+                                <StaticResource x:Key="ListViewItemBackgroundSelectedPressed" ResourceKey="ListViewItemBackgroundSelected" />
+                                <StaticResource x:Key="ListViewItemBackgroundSelectedPointerOver" ResourceKey="ListViewItemBackgroundSelected" />
+                            </ListBox.Resources>
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="indexing:Record">
                                     <StackPanel Margin="0,15">
