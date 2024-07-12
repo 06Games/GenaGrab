@@ -48,6 +48,8 @@ public class ZoomPanel : Panel
         Initialize()?.Arrange(new Rect(new Point(), finalSize)); //Initialise the element and place the child in it
         return finalSize;
     }
+
+    private Size? oldSize;
     private Control? Initialize()
     {
         Child ??= Children.FirstOrDefault();
@@ -66,9 +68,24 @@ public class ZoomPanel : Panel
         var group = new TransformGroup();
         group.Children.Add(new ScaleTransform());
         group.Children.Add(new TranslateTransform());
-        Child.GetObservable(BoundsProperty).Subscribe(_ => Reset());
         Child.RenderTransform = group;
         Child.RenderTransformOrigin = new RelativePoint(new Point(0.5, 0.5), RelativeUnit.Relative);
+        Child.GetObservable(BoundsProperty).Subscribe(_ =>
+        {
+            if (oldSize.HasValue && oldSize.Value != default)
+            {
+                var st = GetScaleTransform(Child);
+                var tt = GetTranslateTransform(Child);
+                if (st is null || tt is null) return;
+                var factors = Bounds.Size / oldSize.Value;
+                var (factorDeltaX, factorDeltaY) = (Math.Abs(1 - factors.X), Math.Abs(1 - factors.Y));
+                var factor = factorDeltaX > factorDeltaY ? factors.X : factors.Y;
+                SetZoom(st.ScaleX * factor, st);
+                MoveTo(tt.X * factor, tt.Y * factor);
+            }
+            else Reset();
+            oldSize = Bounds.Size;
+        });
         Child.PointerWheelChanged += child_MouseWheel;
         Child.PointerPressed += child_MouseLeftButtonDown;
         Child.PointerReleased += child_MouseLeftButtonUp;
@@ -130,9 +147,20 @@ public class ZoomPanel : Panel
         var childTopRight = new Point(Child.Bounds.Width, Child.Bounds.Height);
         var pointerFromCenter = pointer - childTopRight / 2;
         var oldZoom = st.ScaleX;
-        st.ScaleX = st.ScaleY *= zoom;
+        SetZoom(oldZoom * zoom, st);
         MoveTo(position + pointerFromCenter * oldZoom * (1 - zoom)); // position + oldMousePosFromCenter - currentMousePosFromCenter
         ZoomChanged?.Invoke(st.ScaleX);
+    }
+
+    private void SetZoom(double zoom, ScaleTransform? st = null)
+    {
+        if (st is null)
+        {
+            if (Child is null) return;
+            st = GetScaleTransform(Child);
+            if (st is null) return;
+        }
+        st.ScaleX = st.ScaleY = zoom;
     }
 
 
