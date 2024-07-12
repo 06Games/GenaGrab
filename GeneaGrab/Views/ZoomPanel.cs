@@ -180,6 +180,14 @@ public class ZoomPanel : Panel
         Dragging?.Invoke(dragProperties);
     }
 
+    public void MoveToImageCoordinates(Point p)
+    {
+        if (Child is null) return;
+        var st = GetScaleTransform(Child);
+        if (st is null) return;
+        MoveTo((new Point(Child.Bounds.Width, Child.Bounds.Height) / 2 - p) * st.ScaleX);
+    }
+
     private void MoveTo(Point p) => MoveTo(p.X, p.Y);
     private void MoveTo(double x, double y)
     {

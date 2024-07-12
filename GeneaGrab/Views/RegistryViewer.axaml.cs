@@ -126,6 +126,12 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
             if (dragProperties is { PressedButton: MouseButton.Left, KeyModifiers: KeyModifiers.Shift } && (area = dragProperties.Area) is { Width: > 20, Height: > 20 })
                 AddIndex(area);
         };
+
+        RecordList.SelectionChanged += (s, e) =>
+        {
+            if (RecordList.SelectedItem is Record { Position: not null } record)
+                ImagePanel.MoveToImageCoordinates(record.Position.Value.Center);
+        };
     }
 
     private static async Task SaveAsync<T>(T entity)
