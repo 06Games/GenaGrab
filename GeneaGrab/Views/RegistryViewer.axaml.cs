@@ -432,13 +432,13 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         color ??= Colors.RoyalBlue;
         var rectangle = new Border
         {
-            Background = new SolidColorBrush(color.Value, .1),
+            Background = new SolidColorBrush(color.Value, .1d),
             BorderBrush = new SolidColorBrush(color.Value),
             BorderThickness = new Thickness(2),
             CornerRadius = new CornerRadius(5)
         };
         rectangle.Styles.Add(new Style { Setters = { new Setter(OpacityProperty, .4d) } });
-        rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .8d) } });
+        rectangle.Styles.Add(new Style(x => x.Class(":pointerover")) { Setters = { new Setter(OpacityProperty, .7d) } });
         rectangle.Styles.Add(new Style(x => x.Class("selected")) { Setters = { new Setter(OpacityProperty, 1d) } });
 
         ImageCanvas.Children.Add(rectangle);
