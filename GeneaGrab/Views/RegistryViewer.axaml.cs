@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -458,6 +460,44 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
     private void RemoveRectangle(Control? rectangle)
     {
         if (rectangle != null) ImageCanvas.Children.Remove(rectangle);
+    }
+
+    public Func<string, string?, Task<IEnumerable<object>>> RecordFieldSuggestions => (field, search) => GetRecordFieldSuggestionsAsync(SelectFieldExpression<Record, string?>(field), search);
+    public Func<string, string?, Task<IEnumerable<object>>> PersonFieldSuggestions => (field, search) => GetPersonRecordFieldSuggestionsAsync(SelectFieldExpression<Person, string?>(field), search);
+
+    private async Task<IEnumerable<object>> GetRecordFieldSuggestionsAsync(Expression<Func<Record, string?>> selector, string? search)
+    {
+        if (Registry is null) return [];
+        await using var db = new DatabaseContext();
+        var suggestions = await SearchInFieldAsync(db.Records.Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id), selector, search ?? string.Empty);
+        return suggestions;
+    }
+
+    private async Task<IEnumerable<object>> GetPersonRecordFieldSuggestionsAsync(Expression<Func<Person, string?>> selector, string? search)
+    {
+        if (Registry is null) return [];
+        await using var db = new DatabaseContext();
+        var suggestions = await SearchInFieldAsync(db.Records
+            .Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id)
+            .Include(r => r.Persons)
+            .SelectMany(r => r.Persons), selector, search ?? string.Empty);
+        return suggestions;
+    }
+
+    private static Task<string[]> SearchInFieldAsync<T>(IQueryable<T> query, Expression<Func<T, string?>> selector, string search)
+        => query.Select(selector)
+            .Where(str => str != null && str.StartsWith(search))
+            .Cast<string>()
+            .Distinct()
+            .Take(10)
+            .ToArrayAsync();
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026")]
+    private static Expression<Func<T, TR>> SelectFieldExpression<T, TR>(string field)
+    {
+        var parameter = Expression.Parameter(typeof(T), "e"); // Name 'e' the entry of type T
+        var property = Expression.PropertyOrField(parameter, field); // The column 'field' of 'e'
+        return Expression.Lambda<Func<T, TR>>(property, parameter); // e => e.field
     }
 
     #endregion
