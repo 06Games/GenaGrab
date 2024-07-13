@@ -508,6 +508,21 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         return Expression.Lambda<Func<T, TR>>(property, parameter); // e => e.field
     }
 
+    private void SavePersonRecordField(object? _, DataGridCellEditEndedEventArgs e)
+    {
+        if (e.Row.DataContext is Person person) SaveAsync(person).Forget();
+    }
+    private void SaveRecordField(object? _, TextChangedEventArgs e)
+    {
+        if (e.Source is Control { DataContext: Record record })
+            SaveAsync(record).Forget();
+    }
+    private void SaveRecordField(object? _, SelectionChangedEventArgs e)
+    {
+        if (e.Source is Control { DataContext: Record record })
+            SaveAsync(record).Forget();
+    }
+
     #endregion
 }
 public class PageList(Frame page) : INotifyPropertyChanged
