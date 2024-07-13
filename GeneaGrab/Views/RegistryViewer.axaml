@@ -106,12 +106,18 @@
                                                     <Setter Property="MinWidth" Value="10" />
                                                 </Style>
                                             </Grid.Styles>
-                                            <TextBox Watermark="Page number" Text="{Binding PageNumber}" GotFocus="SelectParentListBoxItem" />
-                                            <TextBox Grid.Column="1" Watermark="Sequence number" Text="{Binding SequenceNumber}" GotFocus="SelectParentListBoxItem" />
-                                            <TextBox Grid.Column="2" Watermark="City" Text="{Binding City}" GotFocus="SelectParentListBoxItem" />
-                                            <TextBox Grid.Column="3" Watermark="Parish" Text="{Binding Parish}" GotFocus="SelectParentListBoxItem" />
-                                            <TextBox Grid.Column="4" Watermark="District" Text="{Binding District}" GotFocus="SelectParentListBoxItem" />
-                                            <TextBox Grid.Column="5" Watermark="Road" Text="{Binding Road}" GotFocus="SelectParentListBoxItem" />
+                                            <AutoCompleteBox Watermark="Page number" Text="{Binding PageNumber}" GotFocus="SelectParentListBoxItem"
+                                                             AsyncPopulator="{CompiledBinding RecordFieldSuggestions, ConverterParameter='PageNumber', Converter={StaticResource KeyedAsyncPopulator}, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
+                                            <AutoCompleteBox Grid.Column="1" Watermark="Sequence number" Text="{Binding SequenceNumber}" GotFocus="SelectParentListBoxItem"
+                                                             AsyncPopulator="{CompiledBinding RecordFieldSuggestions, ConverterParameter='SequenceNumber', Converter={StaticResource KeyedAsyncPopulator}, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
+                                            <AutoCompleteBox Grid.Column="2" Watermark="City" Text="{Binding City}" GotFocus="SelectParentListBoxItem"
+                                                             AsyncPopulator="{CompiledBinding RecordFieldSuggestions, ConverterParameter='City', Converter={StaticResource KeyedAsyncPopulator}, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
+                                            <AutoCompleteBox Grid.Column="3" Watermark="Parish" Text="{Binding Parish}" GotFocus="SelectParentListBoxItem"
+                                                             AsyncPopulator="{CompiledBinding RecordFieldSuggestions, ConverterParameter='Parish', Converter={StaticResource KeyedAsyncPopulator}, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
+                                            <AutoCompleteBox Grid.Column="4" Watermark="District" Text="{Binding District}" GotFocus="SelectParentListBoxItem"
+                                                             AsyncPopulator="{CompiledBinding RecordFieldSuggestions, ConverterParameter='District', Converter={StaticResource KeyedAsyncPopulator}, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
+                                            <AutoCompleteBox Grid.Column="5" Watermark="Road" Text="{Binding Road}" GotFocus="SelectParentListBoxItem"
+                                                             AsyncPopulator="{CompiledBinding RecordFieldSuggestions, ConverterParameter='Road', Converter={StaticResource KeyedAsyncPopulator}, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
                                             <ComboBox Grid.Column="6" HorizontalAlignment="Stretch" SelectedValue="{Binding Type}" GotFocus="SelectParentListBoxItem"
                                                       ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}">
                                                 <ComboBox.ItemTemplate>

@@ -8,6 +8,7 @@
         <helpers:BitmapAssetValueConverter x:Key="VariableImage" />
         <helpers:JoinConvertor x:Key="JoinConverter" />
         <helpers:ResourceConverter x:Key="Translate" />
+        <helpers:KeyedAsyncPopulatorConverter x:Key="KeyedAsyncPopulator" />
     </Application.Resources>
 
     <Application.Styles>
