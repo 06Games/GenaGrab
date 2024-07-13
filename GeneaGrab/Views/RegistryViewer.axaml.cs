@@ -20,6 +20,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using DiscordRPC;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Navigation;
@@ -460,6 +461,13 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
     private void RemoveRectangle(Control? rectangle)
     {
         if (rectangle != null) ImageCanvas.Children.Remove(rectangle);
+    }
+
+
+    private void SelectParentListBoxItem(object? sender, GotFocusEventArgs _)
+    {
+        if (sender is Visual visual && visual.FindAncestorOfType<ListBox>() is { } lb) // Try to find an ancestor of type ListBox
+            lb.SelectedItem = visual.DataContext; // Set the selected item of our ListBox to the DataContext of our Visual
     }
 
     public Func<string, string?, Task<IEnumerable<object>>> RecordFieldSuggestions => (field, search) => GetRecordFieldSuggestionsAsync(SelectFieldExpression<Record, string?>(field), search);

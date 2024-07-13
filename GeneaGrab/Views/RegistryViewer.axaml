@@ -106,13 +106,13 @@
                                                     <Setter Property="MinWidth" Value="10" />
                                                 </Style>
                                             </Grid.Styles>
-                                            <TextBox Watermark="Page number" Text="{Binding PageNumber}" />
-                                            <TextBox Grid.Column="1" Watermark="Sequence number" Text="{Binding SequenceNumber}" />
-                                            <TextBox Grid.Column="2" Watermark="City" Text="{Binding City}" />
-                                            <TextBox Grid.Column="3" Watermark="Parish" Text="{Binding Parish}" />
-                                            <TextBox Grid.Column="4" Watermark="District" Text="{Binding District}" />
-                                            <TextBox Grid.Column="5" Watermark="Road" Text="{Binding Road}" />
-                                            <ComboBox Grid.Column="6" HorizontalAlignment="Stretch" SelectedValue="{Binding Type}"
+                                            <TextBox Watermark="Page number" Text="{Binding PageNumber}" GotFocus="SelectParentListBoxItem" />
+                                            <TextBox Grid.Column="1" Watermark="Sequence number" Text="{Binding SequenceNumber}" GotFocus="SelectParentListBoxItem" />
+                                            <TextBox Grid.Column="2" Watermark="City" Text="{Binding City}" GotFocus="SelectParentListBoxItem" />
+                                            <TextBox Grid.Column="3" Watermark="Parish" Text="{Binding Parish}" GotFocus="SelectParentListBoxItem" />
+                                            <TextBox Grid.Column="4" Watermark="District" Text="{Binding District}" GotFocus="SelectParentListBoxItem" />
+                                            <TextBox Grid.Column="5" Watermark="Road" Text="{Binding Road}" GotFocus="SelectParentListBoxItem" />
+                                            <ComboBox Grid.Column="6" HorizontalAlignment="Stretch" SelectedValue="{Binding Type}" GotFocus="SelectParentListBoxItem"
                                                       ItemsSource="{helpers:Enumerate {x:Type models:RegistryType}}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
@@ -120,20 +120,22 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-                                            <ComboBox Grid.Column="7" SelectedValue="Gregorian" />
-                                            <CalendarDatePicker Grid.Column="8" SelectedDate="{Binding Date.GregorianDateTime}" />
-                                            <Button Grid.Column="9" Margin="15,0,0,0" Padding="5" Click="RemoveIndex">
+                                            <ComboBox Grid.Column="7" SelectedValue="Gregorian" GotFocus="SelectParentListBoxItem" />
+                                            <CalendarDatePicker Grid.Column="8" SelectedDate="{Binding Date.GregorianDateTime}" GotFocus="SelectParentListBoxItem" />
+                                            <Button Grid.Column="9" Margin="15,0,0,0" Padding="5" Click="RemoveIndex" GotFocus="SelectParentListBoxItem">
                                                 <controls:SymbolIcon Symbol="Delete" />
                                             </Button>
                                         </Grid>
-                                        <TextBox Watermark="Notes" Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" Margin="0, 5" HorizontalAlignment="Stretch" />
+                                        <TextBox Watermark="Notes" Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" Margin="0, 5" HorizontalAlignment="Stretch"
+                                                 GotFocus="SelectParentListBoxItem" />
                                         <RelativePanel Margin="0, 5">
-                                            <TextBlock FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold">Persons</TextBlock>
-                                            <Button RelativePanel.AlignRightWithPanel="True" Padding="5">
+                                            <TextBlock FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold" GotFocus="SelectParentListBoxItem">Persons</TextBlock>
+                                            <Button RelativePanel.AlignRightWithPanel="True" Padding="5" GotFocus="SelectParentListBoxItem">
                                                 <controls:SymbolIcon Symbol="Add" />
                                             </Button>
                                         </RelativePanel>
-                                        <DataGrid ItemsSource="{Binding Persons}" CanUserReorderColumns="False" CanUserResizeColumns="True" CanUserSortColumns="False">
+                                        <DataGrid ItemsSource="{Binding Persons}" CanUserReorderColumns="False" CanUserResizeColumns="True" CanUserSortColumns="False" SelectionMode="Single"
+                                                  GotFocus="SelectParentListBoxItem">
                                             <DataGrid.Columns>
                                                 <components:DataGridAutoCompleteColumn Header="First name" Width="8*"
                                                                                        Binding="{CompiledBinding FirstName}" Key="FirstName" x:DataType="indexing:Person"
