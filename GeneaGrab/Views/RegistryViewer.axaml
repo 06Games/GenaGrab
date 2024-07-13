@@ -141,8 +141,25 @@
                                                 <components:DataGridAutoCompleteColumn Header="Last name" Width="6*"
                                                                                        Binding="{CompiledBinding LastName}" Key="LastName" x:DataType="indexing:Person"
                                                                                        KeyedAsyncPopulator="{CompiledBinding PersonFieldSuggestions, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
-                                                <DataGridTextColumn Header="Sex" Width="3*"
-                                                                    Binding="{CompiledBinding Sex}" x:DataType="indexing:Person" />
+                                                <DataGridTemplateColumn Header="Sex" Width="3*">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate x:DataType="indexing:Person">
+                                                            <TextBlock Text="{CompiledBinding Sex}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="12,0" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                        <DataTemplate x:DataType="indexing:Person">
+                                                            <ComboBox SelectedItem="{CompiledBinding Sex}" ItemsSource="{helpers:Enumerate {x:Type indexing:Sex}}"
+                                                                      HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                                <ComboBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding ConverterParameter='UI@Person.Sex', Converter={StaticResource Translate}}" />
+                                                                    </DataTemplate>
+                                                                </ComboBox.ItemTemplate>
+                                                            </ComboBox>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                                </DataGridTemplateColumn>
                                                 <components:DataGridAutoCompleteColumn Header="Age" Width="4*"
                                                                                        Binding="{CompiledBinding Age}" Key="Age" x:DataType="indexing:Person"
                                                                                        KeyedAsyncPopulator="{CompiledBinding PersonFieldSuggestions, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
@@ -152,8 +169,25 @@
                                                 <components:DataGridAutoCompleteColumn Header="Place of origin" Width="4*"
                                                                                        Binding="{CompiledBinding PlaceOrigin}" Key="PlaceOrigin" x:DataType="indexing:Person"
                                                                                        KeyedAsyncPopulator="{CompiledBinding PersonFieldSuggestions, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
-                                                <DataGridTextColumn Header="Relation" Width="4*"
-                                                                    Binding="{CompiledBinding Relation}" x:DataType="indexing:Person" />
+                                                <DataGridTemplateColumn Header="Relation" Width="4*">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate x:DataType="indexing:Person">
+                                                            <TextBlock Text="{CompiledBinding Relation}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="12,0" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                        <DataTemplate x:DataType="indexing:Person">
+                                                            <ComboBox SelectedItem="{CompiledBinding Relation}" ItemsSource="{helpers:Enumerate {x:Type indexing:Relation}}"
+                                                                      HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                                <ComboBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding ConverterParameter='UI@Person.Relation', Converter={StaticResource Translate}}" />
+                                                                    </DataTemplate>
+                                                                </ComboBox.ItemTemplate>
+                                                            </ComboBox>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                                </DataGridTemplateColumn>
                                                 <components:DataGridAutoCompleteColumn Header="Notes" Width="6*"
                                                                                        Binding="{CompiledBinding Notes}" Key="Notes" x:DataType="indexing:Person"
                                                                                        KeyedAsyncPopulator="{CompiledBinding PersonFieldSuggestions, RelativeSource={RelativeSource AncestorType={x:Type views:RegistryViewer}}}" />
