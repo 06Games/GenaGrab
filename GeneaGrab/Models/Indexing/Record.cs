@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia;
+using Avalonia.Collections;
 using GeneaGrab.Core.Models;
 using GeneaGrab.Core.Models.Dates;
 
@@ -53,7 +53,7 @@ public class Record(string providerId, string registryId, int frameNumber)
     public string? Road { get; set; }
 
     /// <summary>Persons linked to the record</summary>
-    public IEnumerable<Person> Persons { get; private set; } = new List<Person>();
+    public AvaloniaList<Person> Persons { get; private set; } = [];
     /// <summary>Field for any remaining info</summary>
     public string? Notes { get; set; }
 

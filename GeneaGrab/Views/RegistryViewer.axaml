@@ -89,7 +89,7 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <ListBox Tag="Records" Name="RecordList">
+                        <ListBox Tag="Records" Name="RecordList" ItemsSource="{Binding Records}">
                             <ListBox.Resources>
                                 <!-- Disable hover and pressed background changes when selected -->
                                 <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="{DynamicResource SubtleFillColorSecondary}" />
@@ -145,12 +145,12 @@
                                                  GotFocus="SelectParentListBoxItem" TextChanged="SaveRecordField" />
                                         <RelativePanel Margin="0, 5">
                                             <TextBlock FontSize="{StaticResource FontSizeSmall}" FontWeight="Bold" GotFocus="SelectParentListBoxItem">Persons</TextBlock>
-                                            <Button RelativePanel.AlignRightWithPanel="True" Padding="5" GotFocus="SelectParentListBoxItem">
+                                            <Button RelativePanel.AlignRightWithPanel="True" Padding="5" Click="AddPersonRecord" GotFocus="SelectParentListBoxItem">
                                                 <controls:SymbolIcon Symbol="Add" />
                                             </Button>
                                         </RelativePanel>
                                         <DataGrid ItemsSource="{Binding Persons}" CanUserReorderColumns="False" CanUserResizeColumns="True" CanUserSortColumns="False" SelectionMode="Single"
-                                                  GotFocus="SelectParentListBoxItem" CellEditEnded="SavePersonRecordField">
+                                                  GotFocus="SelectParentListBoxItem" CellEditEnded="SavePersonRecordField" KeyDown="PersonRecordKeyDown">
                                             <DataGrid.Columns>
                                                 <components:DataGridAutoCompleteColumn Header="First name" Width="8*"
                                                                                        Binding="{CompiledBinding FirstName}" Key="FirstName" x:DataType="indexing:Person"

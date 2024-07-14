@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -131,18 +132,20 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
                 AddIndex(area);
         };
 
-        RecordList.SelectionChanged += (s, e) =>
+        RecordList.SelectionChanged += (_, _) =>
         {
             if (RecordList.SelectedItem is Record { Position: not null } record)
                 ImagePanel.MoveToImageCoordinates(record.Position.Value.Center);
         };
+        Records.CollectionChanged += (_, _) => DisplayIndex();
     }
 
-    private static async Task SaveAsync<T>(T entity)
+    private static async Task SaveAsync<T>(T entity, string? property = null)
     {
         if (entity is null) return;
         await using var db = new DatabaseContext();
-        db.Update(entity);
+        if (property == null) db.Update(entity);
+        else db.Entry(entity).Property(property).IsModified = true;
         await db.SaveChangesAsync();
     }
 
@@ -255,6 +258,7 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         AuthenticateIfNeeded(Provider, nameof(Provider.GetFrame));
         var image = await Provider.GetFrame(page, Scale.Navigation, TrackProgress);
         await Dispatcher.UIThread.InvokeAsync(() => RefreshView(image));
+        ReloadRecords();
         await SaveAsync(Frame);
     }
     private void RefreshView(Stream? img = null)
@@ -266,8 +270,6 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         PageTotal.Text = $"/ {pageTotal}";
         PreviousPage.IsEnabled = Frame.FrameNumber > 1;
         NextPage.IsEnabled = Frame.FrameNumber < pageTotal;
-
-        DisplayIndex();
 
         var image = Image;
         var pageList = PageList;
@@ -359,18 +361,21 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
 
     #region Index
 
+    private AvaloniaList<Record> Records { get; } = [];
+
     private bool HasRecords { get; set; }
 
     private void AddIndex(Rect position)
     {
         if (Registry == null || Frame == null) return;
         using var db = new DatabaseContext();
-        db.Records.Add(new Record(Registry, Frame)
+        var record = new Record(Registry, Frame)
         {
             Position = position
-        });
+        };
+        db.Records.Add(record);
         db.SaveChanges();
-        DisplayIndex();
+        Records.Add(record);
     }
 
     private void RemoveIndex(object _, RoutedEventArgs e)
@@ -384,16 +389,15 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         using var db = new DatabaseContext();
         db.Records.Remove(record);
         db.SaveChanges();
-        DisplayIndex();
+        Records.Remove(record);
     }
 
-    private void DisplayIndex()
+    private void ReloadRecords()
     {
         if (Registry == null || Frame == null) return;
-        ImageCanvas.Children.Clear();
-
         using var db = new DatabaseContext();
-        var indexes = db.Records
+        Records.Clear();
+        Records.AddRange(db.Records
             .Where(r => r.ProviderId == Registry.ProviderId && r.RegistryId == Registry.Id && r.FrameNumber == Frame.FrameNumber)
             .Include(r => r.Persons)
             .AsEnumerable()
@@ -401,12 +405,16 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
             .ThenBy(r => r.SequenceNumber, StringComparison.OrdinalIgnoreCase.WithNaturalSort())
             .ThenBy(r => r.Position?.Y)
             .ThenBy(r => r.Position?.X)
-            .ToList();
-        RecordList.ItemsSource = indexes;
-        HasRecords = indexes.Count > 0;
+            .ToList());
+    }
+
+    private void DisplayIndex()
+    {
+        HasRecords = Records.Count > 0;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasRecords)));
-        foreach (var index in indexes)
-            DisplayIndexRectangle(index);
+
+        ImageCanvas.Children.Clear();
+        foreach (var index in Records) DisplayIndexRectangle(index);
     }
     private void DisplayIndexRectangle(Record? index)
     {
@@ -463,6 +471,19 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         if (rectangle != null) ImageCanvas.Children.Remove(rectangle);
     }
 
+    private void AddPersonRecord(object? _, RoutedEventArgs routedEventArgs) => AddPersonRecord((routedEventArgs.Source as StyledElement)?.DataContext as Record);
+    private void AddPersonRecord(Record? record)
+    {
+        if (record == null) return;
+        using var db = new DatabaseContext();
+        var person = new Person
+        {
+            RecordId = record.Id
+        };
+        db.Persons.Add(person);
+        db.SaveChanges();
+        record.Persons.Add(person);
+    }
 
     private void SelectParentListBoxItem(object? sender, GotFocusEventArgs _)
     {
@@ -521,6 +542,16 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
     {
         if (e.Source is Control { DataContext: Record record })
             SaveAsync(record).Forget();
+    }
+
+    private void PersonRecordKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e is not { Key: Key.Delete, KeyModifiers: KeyModifiers.None }) return;
+        if (sender is not DataGrid { SelectedItem: Person person, DataContext: Record record }) return;
+        using var db = new DatabaseContext();
+        db.Persons.Remove(person);
+        db.SaveChanges();
+        record.Persons.Remove(person);
     }
 
     #endregion
