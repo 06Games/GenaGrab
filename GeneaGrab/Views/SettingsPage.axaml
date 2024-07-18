@@ -13,7 +13,7 @@
         <views:SettingsPage />
     </Design.DataContext>
     <UserControl.Resources>
-        <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="services:Theme" />
+        <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="services:Theme" EnumValue="{x:Static services:ThemeSelectorService.Theme}" />
     </UserControl.Resources>
     <Grid>
         <StackPanel x:Name="ContentArea" Margin="15">
@@ -21,61 +21,35 @@
             <StackPanel Margin="15,0,0,0">
                 <TextBlock Text="{x:Static strings:UI.Settings_Theme}" FontSize="16" FontWeight="Regular" />
 
-                <StackPanel>
-                    <RadioButton 
-                        Content="{x:Static strings:UI.Settings_Theme_System}"
-                        IsCheckedChanged="ThemeChanged_Checked"
-                        IsChecked="{Binding ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=System, Mode=OneWay}"
-                        FontSize="14"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <services:Theme>System</services:Theme>
-                        </RadioButton.CommandParameter>
-                    </RadioButton>
-                    <RadioButton 
-                        Content="{x:Static strings:UI.Settings_Theme_Light}"
-                        IsCheckedChanged="ThemeChanged_Checked" 
-                        IsChecked="{Binding ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}"
-                        FontSize="14"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <services:Theme>Light</services:Theme>
-                        </RadioButton.CommandParameter> 
-                    </RadioButton>
-                    <RadioButton 
-                        Content="{x:Static strings:UI.Settings_Theme_Dark}"
-                        IsCheckedChanged="ThemeChanged_Checked" 
-                        IsChecked="{Binding ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}"
-                        FontSize="14"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <services:Theme>Dark</services:Theme>
-                        </RadioButton.CommandParameter>
-                    </RadioButton>
-                    <RadioButton 
-                        Content="{x:Static strings:UI.Settings_Theme_HighContrast}"
-                        IsCheckedChanged="ThemeChanged_Checked" 
-                        IsChecked="{Binding ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=HighContrast, Mode=OneWay}"
-                        FontSize="14"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <services:Theme>HighContrast</services:Theme>
-                        </RadioButton.CommandParameter>
-                    </RadioButton>
-                </StackPanel>
+                <ItemsControl ItemsSource="{helpers:Enumerate {x:Type services:Theme}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="services:Theme">
+                            <RadioButton
+                                Content="{Binding ConverterParameter='UI@Settings.Theme', Converter={StaticResource Translate}}"
+                                IsCheckedChanged="ThemeChanged_Checked"
+                                IsChecked="{Binding Converter={StaticResource EnumToBooleanConverter}, Mode=OneWay}"
+                                FontSize="14"
+                                GroupName="AppTheme"
+                                CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
             <StackPanel Margin="15,0,0,0">
                 <TextBlock Text="{x:Static strings:UI.Settings_Authentication}" FontSize="16" FontWeight="Regular" />
                 <Grid RowDefinitions="*" ColumnDefinitions="125,200,200">
-                    <TextBlock Text="{x:Static strings:Core.Provider_FamilySearch}" Grid.Row="0" Grid.Column="0" Margin="2.5" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="14" FontWeight="Regular" />
-                    <TextBox Watermark="{x:Static strings:UI.Settings_Authentication_Username}" Grid.Row="0" Grid.Column="1" Margin="2.5" Text="{Binding FamilySearch.Username, Mode=TwoWay, FallbackValue=''}" TextChanged="FamilySearch_Changed" />
-                    <TextBox PasswordChar="*" Watermark="{x:Static strings:UI.Settings_Authentication_Password}" Grid.Row="0" Grid.Column="2" Margin="2.5" Text="{Binding FamilySearch.Password, Mode=TwoWay, FallbackValue=''}" TextChanged="FamilySearch_Changed" />
+                    <TextBlock Text="{x:Static strings:Core.Provider_FamilySearch}" Grid.Row="0" Grid.Column="0" Margin="2.5" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="14"
+                               FontWeight="Regular" />
+                    <TextBox Watermark="{x:Static strings:UI.Settings_Authentication_Username}" Grid.Row="0" Grid.Column="1" Margin="2.5"
+                             Text="{Binding FamilySearch.Username, Mode=TwoWay, FallbackValue=''}" TextChanged="FamilySearch_Changed" />
+                    <TextBox PasswordChar="*" Watermark="{x:Static strings:UI.Settings_Authentication_Password}" Grid.Row="0" Grid.Column="2" Margin="2.5"
+                             Text="{Binding FamilySearch.Password, Mode=TwoWay, FallbackValue=''}" TextChanged="FamilySearch_Changed" />
                 </Grid>
             </StackPanel>
 
             <TextBlock Text="{x:Static strings:UI.Settings_About}" FontSize="18" FontWeight="Medium" Margin="0,15,0,0" />
             <StackPanel Margin="15,0,0,0">
-                <TextBlock Text="{Binding VersionDescription, Mode=OneWay}" />
+                <TextBlock Text="{x:Static views:SettingsPage.VersionDescription}" />
                 <TextBlock Text="{x:Static strings:UI.Settings_About_Description}" />
                 <controls:HyperlinkButton NavigateUri="https://github.com/06Games/GeneaGrab" Content="{x:Static strings:UI.Settings_About_SourceCode}" Padding="0" />
             </StackPanel>
