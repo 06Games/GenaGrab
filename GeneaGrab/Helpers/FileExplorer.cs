@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Text.Encodings.Web;
 using Windows.Win32;
 using Windows.Win32.UI.Shell.Common;
 
@@ -29,7 +28,7 @@ public static partial class FileExplorer
         else if (OperatingSystem.IsWindows())
             Process.Start("explorer.exe", $"/select,\"{Path.Combine(folderPath, fileName)}\""); // Will open a new explorer window at each call
         else
-            Process.Start(new ProcessStartInfo { FileName = $"file://{UrlEncoder.Default.Encode(folderPath)}", UseShellExecute = true });
+            Process.Start(new ProcessStartInfo { FileName = new Uri(folderPath).AbsoluteUri, UseShellExecute = true });
     }
 
     [SupportedOSPlatform("windows5.1.2600")]
