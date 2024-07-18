@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Avalonia;
@@ -329,18 +327,7 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
     {
         if (Frame == null) return;
         var page = LocalData.GetFile(Frame);
-        if (page is null) return;
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            try { WinExplorer.OpenFolderAndSelectItem(page.FullName); }
-            catch { Process.Start("explorer.exe", "/select,\"" + page.FullName + "\""); }
-        }
-        else if (page.DirectoryName != null)
-        {
-            var url = $"file://{page.DirectoryName.Replace(" ", "%20")}";
-            Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
-        }
+        if (page != null) FileExplorer.OpenFolderAndSelectItem(page);
     }
     private void Ark(object _1, RoutedEventArgs _2)
     {
