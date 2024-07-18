@@ -472,7 +472,7 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
     }
 
     private void AddPersonRecord(object? _, RoutedEventArgs routedEventArgs) => AddPersonRecord((routedEventArgs.Source as StyledElement)?.DataContext as Record);
-    private void AddPersonRecord(Record? record)
+    private static void AddPersonRecord(Record? record)
     {
         if (record == null) return;
         using var db = new DatabaseContext();

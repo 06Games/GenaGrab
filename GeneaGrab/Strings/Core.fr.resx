@@ -123,4 +123,16 @@
     <value>Antenati</value>
         <comment>antenati.san.beniculturali.it</comment>
   </data>
+    <data name="Provider.FamilySearch" xml:space="preserve">
+        <value>FamilySearch</value>
+        <comment>www.familysearch.org</comment>
+    </data>
+    <data name="Provider.Geneanet" xml:space="preserve">
+        <value>Geneanet</value>
+        <comment>geneanet.org</comment>
+    </data>
+    <data name="Provider.NiceHistorique" xml:space="preserve">
+        <value>Nice Historique</value>
+        <comment>www.nicehistorique.org</comment>
+    </data>
 </root>

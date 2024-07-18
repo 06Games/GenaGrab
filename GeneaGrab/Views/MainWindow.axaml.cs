@@ -35,9 +35,9 @@ public interface ITabPage
 }
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
-    public bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-    public bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    public GridLength WindowsTitleBarWidth => new(IsWindows ? 150 : 15);
+    public static bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public static GridLength WindowsTitleBarWidth => new(IsWindows ? 150 : 15);
 
     public MainWindow()
     {
@@ -92,7 +92,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         else NavigationService.OpenTab(NewTab());
     }
 
-    private TabViewItem NewTab() => NavigationService.NewTab(typeof(ProviderList));
+    private static TabViewItem NewTab() => NavigationService.NewTab(typeof(ProviderList));
 
     /// <summary>Add a new Tab to the TabView</summary>
     protected void AddTab(TabView _, EventArgs _1) => NewTab();

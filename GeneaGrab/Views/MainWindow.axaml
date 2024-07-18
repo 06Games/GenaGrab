@@ -20,7 +20,7 @@
         <controls:TabView Name="TabView" AddTabButtonClick="AddTab" TabCloseRequested="CloseTab" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <controls:TabView.TabStripHeader>
                 <StackPanel Orientation="Horizontal">
-                    <StackPanel Name="ShellTitlebarInset" IsVisible="{Binding IsMacOS}" Width="75" />
+                    <StackPanel Name="ShellTitlebarInset" IsVisible="{x:Static views:MainWindow.IsMacOS}" Width="75" />
                     <Button IsEnabled="{Binding IsBackEnabled}" Click="GoBack" BorderThickness="0">
                         <controls:SymbolIcon Symbol="Back" />
                         <Button.Styles>
@@ -50,7 +50,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition MaxWidth="400" Width="300" MinWidth="200" />
-                        <ColumnDefinition Width="{Binding WindowsTitleBarWidth}" />
+                        <ColumnDefinition Width="{x:Static views:MainWindow.WindowsTitleBarWidth}" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->

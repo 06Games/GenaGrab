@@ -42,3 +42,5 @@ exclude:
   - name: XmlUnusedNamespaceDeclaration
   - name: XmlWrongRootElement
   - name: XmlHighlighting
+  - name: OverriddenWithSameValue
+  - name: SeparateLocalFunctionsWithJumpStatement

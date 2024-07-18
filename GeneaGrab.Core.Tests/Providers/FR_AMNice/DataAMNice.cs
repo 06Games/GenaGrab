@@ -10,7 +10,7 @@ public class DataAMNice : IEnumerable<object[]>
     [
         new Data
         {
-            URL = @"https://recherche.archives.nicecotedazur.org/viewer/series/VDN_0029/FRAC006088_002E035_2?img=FRAC006088_002E035_2_030.jpg",
+            URL = "https://recherche.archives.nicecotedazur.org/viewer/series/VDN_0029/FRAC006088_002E035_2?img=FRAC006088_002E035_2_030.jpg",
             Id = "FRAC006088_000000029_de-194",
             Page = 30,
             Cote = "2 E 35-2",
@@ -23,7 +23,7 @@ public class DataAMNice : IEnumerable<object[]>
 
         new Data
         {
-            URL = @"https://recherche.archives.nicecotedazur.org/viewer/viewer/VDN_0045/FRAC006088_010Fi2967_R.jpg",
+            URL = "https://recherche.archives.nicecotedazur.org/viewer/viewer/VDN_0045/FRAC006088_010Fi2967_R.jpg",
             Id = "FRAC006088_000000070_de-4499",
             Page = 1,
             Cote = "10 Fi 2967",
@@ -36,7 +36,7 @@ public class DataAMNice : IEnumerable<object[]>
 
         new Data
         {
-            URL = @"https://recherche.archives.nicecotedazur.org/viewer/viewer/VDN_0036/FRAC006088_013Fi0185.jpg",
+            URL = "https://recherche.archives.nicecotedazur.org/viewer/viewer/VDN_0036/FRAC006088_013Fi0185.jpg",
             Id = "FRAC006088_000000036_de-917",
             Page = 1,
             Cote = "13 Fi 185",
@@ -51,7 +51,7 @@ public class DataAMNice : IEnumerable<object[]>
 
         new Data
         {
-            URL = @"https://recherche.archives.nicecotedazur.org/viewer/series/VDN_0116/FRAC006088_033PER/FRAC006088_033PER_1872_1?img=FRAC006088_033PER_1872_1_0009.jpg",
+            URL = "https://recherche.archives.nicecotedazur.org/viewer/series/VDN_0116/FRAC006088_033PER/FRAC006088_033PER_1872_1?img=FRAC006088_033PER_1872_1_0009.jpg",
             Id = "FRAC006088_000000116_de-26",
             Page = 5,
             Cote = "33 PER 4",

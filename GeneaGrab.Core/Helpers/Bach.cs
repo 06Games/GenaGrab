@@ -99,7 +99,7 @@ public abstract class Bach : Provider
             AppUrl = GetVariable("app_url"),
             Path = imgPath ?? GetVariable("series_path"),
             IsSeries = imgPath == null
-        }, pages == "null" ? new[] { Regex.Match(webpage, @"imageName: '(?<img>.*?)'").Groups.TryGetValue("img") } : pages.Split(","));
+        }, pages == "null" ? new[] { Regex.Match(webpage, "imageName: '(?<img>.*?)'").Groups.TryGetValue("img") } : pages.Split(","));
 
         string GetVariable(string variableName) => Regex.Match(webpage, $"var {variableName} = '(?<var>.*?)';").Groups.TryGetValue("var");
     }
@@ -192,7 +192,7 @@ public abstract class Bach : Provider
         return (registry, info.Position ?? 1);
     }
 
-    protected IEnumerable<string[]> GetTypes(Dictionary<string, string[]> docPageInfo)
+    protected static IEnumerable<string[]> GetTypes(Dictionary<string, string[]> docPageInfo)
     {
         if (docPageInfo.TryGetValue("Typologie documentaire", out var typologie)) yield return typologie;
         if (docPageInfo.TryGetValue("Mot matière thésaurus", out var thesaurus)) yield return thesaurus;

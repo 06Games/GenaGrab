@@ -21,22 +21,12 @@ public partial class SettingsPage : Page, INotifyPropertyChanged, ITabPage
     public string? Identifier => null;
     public Task GetRichPresenceAsync(RichPresence richPresence) => Task.CompletedTask;
 
-    public Theme ElementTheme => ThemeSelectorService.Theme;
-
-    private string? _versionDescription;
-    public string? VersionDescription
-    {
-        get => _versionDescription;
-        set => Set(ref _versionDescription, value);
-    }
-    public Credentials? FamilySearch { get; }
+    public static string? VersionDescription { get; } = GetVersionDescription();
+    public Credentials? FamilySearch { get; } = SettingsService.SettingsData.Credentials.TryGetValue("FamilySearch", out var credentials) ? credentials : new Credentials();
 
     public SettingsPage()
     {
         ThemeSelectorService.Initialize();
-        VersionDescription = GetVersionDescription();
-        FamilySearch = SettingsService.SettingsData.Credentials.TryGetValue("FamilySearch", out var credentials) ? credentials : new Credentials();
-
         InitializeComponent();
         DataContext = this;
     }
