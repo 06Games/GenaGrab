@@ -15,6 +15,7 @@
      <File Id="uidll0" Name="av_libglesv2.dll" Source="GeneaGrab-win-x64\av_libglesv2.dll"/>
      <File Id="uidll1" Name="libHarfBuzzSharp.dll" Source="GeneaGrab-win-x64\libHarfBuzzSharp.dll"/>
      <File Id="uidll2" Name="libSkiaSharp.dll" Source="GeneaGrab-win-x64\libSkiaSharp.dll"/>
+     <File Id="uidll3" Name="e_sqlite3.dll" Source="GeneaGrab-win-x64\e_sqlite3.dll"/>
     </Component>
    </Directory>
   </StandardDirectory>
