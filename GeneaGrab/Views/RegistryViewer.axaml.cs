@@ -228,9 +228,10 @@ public partial class RegistryViewer : Page, INotifyPropertyChanged, ITabPage
         Registry = registry;
         if (Registry == null) return (false, false);
 
-        if (info.FrameArkUrl != null) Frame = Registry.Frames.FirstOrDefault(f => f.ArkUrl == info.FrameArkUrl);
-        if (info.PageNumber.HasValue) Frame ??= Registry.Frames.FirstOrDefault(f => f.FrameNumber == info.PageNumber);
-        Frame ??= Registry.Frames.FirstOrDefault();
+        Frame? frame = null;
+        if (info.FrameArkUrl != null) frame = Registry.Frames.FirstOrDefault(f => f.ArkUrl == info.FrameArkUrl);
+        if (info.PageNumber.HasValue) frame ??= Registry.Frames.FirstOrDefault(f => f.FrameNumber == info.PageNumber);
+        Frame = frame ?? Registry.Frames.FirstOrDefault();
         return (Frame != null, false);
     }
 
