@@ -4,6 +4,7 @@ using System.Text;
 using Integrative.Encryption;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 
 namespace GeneaGrab.Core.Models;
 
@@ -15,8 +16,16 @@ public interface IAuthentification
 }
 public class Credentials
 {
-    public string Username { get; set; }
-    [JsonConverter(typeof(PasswordConverter))] public string Password { get; set; }
+    public string Username
+    {
+        get;
+        set;
+    }
+    [JsonConverter(typeof(PasswordConverter))] public string Password
+    {
+        get;
+        set;
+    }
 
     private sealed class PasswordConverter : JsonConverter
     {
@@ -33,13 +42,26 @@ public class Credentials
                 entropy = RandomNumberGenerator.GetBytes(20); // Generate additional entropy (will be used as the Initialization vector)
                 cipher = CrossProtect.Protect(plaintext, entropy, DataProtectionScope.CurrentUser);
             }
-            JToken.FromObject(new { Entropy = Convert.ToBase64String(entropy), Cipher = Convert.ToBase64String(cipher) }).WriteTo(writer);
+            JToken.FromObject(new
+            {
+                Entropy = Convert.ToBase64String(entropy),
+                Cipher = Convert.ToBase64String(cipher)
+            }).WriteTo(writer);
         }
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var obj = JToken.ReadFrom(reader);
             if (!obj.HasValues) return null;
-            var plain = CrossProtect.Unprotect(Convert.FromBase64String(obj.Value<string>("Cipher")), Convert.FromBase64String(obj.Value<string>("Entropy")), DataProtectionScope.CurrentUser);
+            byte[] plain;
+            try
+            {
+                plain = CrossProtect.Unprotect(Convert.FromBase64String(obj.Value<string>("Cipher")), Convert.FromBase64String(obj.Value<string>("Entropy")), DataProtectionScope.CurrentUser);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Couldn't decipher password");
+                return null;
+            }
             if (objectType == typeof(byte[])) return plain;
             return Encoding.UTF8.GetString(plain);
         }
