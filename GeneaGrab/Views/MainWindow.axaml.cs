@@ -180,26 +180,27 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     #region MoveWindow
 
-    private bool _mouseDownForWindowMoving;
-    private PointerPoint _originalPoint;
+    private bool mouseDownForWindowMoving;
+    private PointerPoint originalPoint;
 
     private void InputElement_OnPointerMoved(object? _, PointerEventArgs e)
     {
-        if (!_mouseDownForWindowMoving) return;
+        if (!mouseDownForWindowMoving) return;
 
         var currentPoint = e.GetCurrentPoint(this);
-        Position = new PixelPoint(Position.X + (int)(currentPoint.Position.X - _originalPoint.Position.X), Position.Y + (int)(currentPoint.Position.Y - _originalPoint.Position.Y));
+        WindowState = WindowState.Normal;
+        Position = new PixelPoint(Position.X + (int)(currentPoint.Position.X - originalPoint.Position.X), Position.Y + (int)(currentPoint.Position.Y - originalPoint.Position.Y));
     }
 
     private void InputElement_OnPointerPressed(object? _, PointerEventArgs e)
     {
-        if (WindowState is WindowState.Maximized or WindowState.FullScreen) return;
-
-        _mouseDownForWindowMoving = true;
-        _originalPoint = e.GetCurrentPoint(this);
+        if (WindowState == WindowState.FullScreen) return;
+        
+        mouseDownForWindowMoving = true;
+        originalPoint = e.GetCurrentPoint(this);
     }
 
-    private void InputElement_OnPointerReleased(object? _, PointerReleasedEventArgs e) => _mouseDownForWindowMoving = false;
+    private void InputElement_OnPointerReleased(object? _, PointerReleasedEventArgs e) => mouseDownForWindowMoving = false;
 
     #endregion
 }
