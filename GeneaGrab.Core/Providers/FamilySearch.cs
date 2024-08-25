@@ -227,6 +227,4 @@ public class FamilySearch : Provider, IAuthentification
         await Data.SaveImage(page, image, false).ConfigureAwait(false);
         return image.ToStream();
     }
-
-    public override Task<string> Ark(Frame page) => Task.FromResult(page.ArkUrl);
 }

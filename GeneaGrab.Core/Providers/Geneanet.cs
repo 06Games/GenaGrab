@@ -120,7 +120,6 @@ public class Geneanet : Provider
 
     #region Page
 
-    public override Task<string> Ark(Frame page) => Task.FromResult(page.ArkUrl);
     public override async Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress)
     {
         var stream = await Data.TryGetImageFromDrive(page, scale);

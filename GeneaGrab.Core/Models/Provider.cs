@@ -15,7 +15,7 @@ public abstract class Provider : IEquatable<Provider>
     public abstract Task<RegistryInfo> GetRegistryFromUrlAsync(Uri url);
     public abstract Task<(Registry registry, int pageNumber)> Infos(Uri url);
     public abstract Task<Stream> GetFrame(Frame page, Scale scale, Action<Progress> progress);
-    public abstract Task<string> Ark(Frame page);
+    public virtual Task<string> Ark(Frame page) => Task.FromResult(page.ArkUrl);
 
 
     public bool Equals(Provider other) => Id == other?.Id;
