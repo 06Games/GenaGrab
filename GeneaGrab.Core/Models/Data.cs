@@ -30,6 +30,7 @@ public static class Data
             var providers = new List<Provider>
             {
                 // France
+                new ANFR(),
                 new Geneanet(),
                 new AD06(),
                 new Nice(),

@@ -181,4 +181,7 @@
         <value>FamilySearch</value>
         <comment>www.familysearch.org</comment>
     </data>
+    <data name="Provider.ANFR" xml:space="preserve">
+        <value>French National Archives</value><comment>www.archives-nationales.culture.gouv.fr</comment>
+    </data>
 </root>

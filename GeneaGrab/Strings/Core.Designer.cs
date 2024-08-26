@@ -96,6 +96,15 @@ namespace GeneaGrab.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to French National Archives.
+        /// </summary>
+        public static string Provider_ANFR {
+            get {
+                return ResourceManager.GetString("Provider.ANFR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Antenati.
         /// </summary>
         public static string Provider_Antenati {

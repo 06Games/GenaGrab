@@ -135,4 +135,7 @@
         <value>Nice Historique</value>
         <comment>www.nicehistorique.org</comment>
     </data>
+    <data name="Provider.ANFR" xml:space="preserve">
+        <value>Archives nationales de France</value>
+    </data>
 </root>
