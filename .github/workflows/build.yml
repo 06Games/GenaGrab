@@ -179,9 +179,3 @@ jobs:
             test-results/**/*.xml
             test-results/**/*.trx
             test-results/**/*.json
-
-      - name: Qodana scan
-        uses: JetBrains/qodana-action@main
-        if: '!cancelled()'
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
