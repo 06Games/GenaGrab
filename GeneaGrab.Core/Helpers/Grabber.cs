@@ -21,16 +21,15 @@ public static class Grabber
             return new Image<Rgb24>(1, 1, Color.Black);
         }
     }
-    public static Image MergeTile(this Image tex, Image tile, (int tileSize, int scale, Point pos) a) => MergeTile(tex, tile, a.tileSize, a.scale, a.pos);
-    public static Image MergeTile(this Image tex, Image tile, int tileSize, int scale, Point pos)
+    public static Image MergeTile(this Image tex, Image tile, (int tileSize, int scale, Point pos) a) => MergeTile(tex, tile, a.tileSize, a.pos);
+    public static Image MergeTile(this Image tex, Image tile, int tileSize, Point pos)
     {
         if (tile is null)
         {
             Log.Warning("The tile at {Position} is null", pos);
             return tex;
         }
-        tile.Mutate(x => x.Resize(tile.Width * scale, tile.Height * scale));
-        var point = new Point(pos.X * tileSize * scale, pos.Y * tileSize * scale);
+        var point = new Point(pos.X * tileSize, pos.Y * tileSize);
         tex.Mutate(x => x.DrawImage(tile, point, 1));
         return tex;
     }

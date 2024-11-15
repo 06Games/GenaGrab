@@ -141,7 +141,7 @@ public class Geneanet : Provider
         var (tiles, diviser) = Zoomify.GetTilesNumber(page, zoom);
 
         progress?.Invoke(0);
-        Image image = new Image<Rgb24>(page.Width!.Value, page.Height!.Value);
+        Image image = new Image<Rgb24>(page.Width!.Value / diviser, page.Height!.Value / diviser);
         var tasks = new Dictionary<Task<Image>, (int tileSize, int scale, Point pos)>();
         for (var y = 0; y < tiles.Y; y++)
             for (var x = 0; x < tiles.X; x++)
