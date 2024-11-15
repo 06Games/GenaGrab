@@ -16,7 +16,7 @@
                         <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
                     </Button.Resources>
                     <Button.Styles>
-                        <Style Selector="Button:not(:pointerover) > controls|FABorder">
+                        <Style Selector="Button:not(:pointerover) > ContentPresenter">
                             <Setter Property="Background" Value="Transparent" />
                         </Style>
                     </Button.Styles>
@@ -34,10 +34,10 @@
                         <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
                     </Button.Resources>
                     <Button.Styles>
-                        <Style Selector="Button:pointerover > controls|FABorder">
+                        <Style Selector="Button:pointerover > ContentPresenter">
                             <Setter Property="Background" Value="#44AAAAAA" />
                         </Style>
-                        <Style Selector="Button:not(:pointerover) > controls|FABorder">
+                        <Style Selector="Button:not(:pointerover) > ContentPresenter">
                             <Setter Property="Background" Value="Transparent" />
                         </Style>
                     </Button.Styles>
@@ -50,10 +50,10 @@
                         <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
                     </Button.Resources>
                     <Button.Styles>
-                        <Style Selector="Button:pointerover > controls|FABorder">
+                        <Style Selector="Button:pointerover > ContentPresenter">
                             <Setter Property="Background" Value="DarkRed" />
                         </Style>
-                        <Style Selector="Button:not(:pointerover) > controls|FABorder">
+                        <Style Selector="Button:not(:pointerover) > ContentPresenter">
                             <Setter Property="Background" Value="Transparent" />
                         </Style>
                     </Button.Styles>

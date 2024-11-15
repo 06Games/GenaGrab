@@ -6,7 +6,6 @@
              xmlns:views="clr-namespace:GeneaGrab.Views"
              xmlns:helpers="clr-namespace:GeneaGrab.Helpers"
              xmlns:services="clr-namespace:GeneaGrab.Services"
-             xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GeneaGrab.Views.SettingsPage">
     <Design.DataContext>
@@ -51,7 +50,7 @@
             <StackPanel Margin="15,0,0,0">
                 <TextBlock Text="{x:Static views:SettingsPage.VersionDescription}" />
                 <TextBlock Text="{x:Static strings:UI.Settings_About_Description}" />
-                <controls:HyperlinkButton NavigateUri="https://github.com/06Games/GeneaGrab" Content="{x:Static strings:UI.Settings_About_SourceCode}" Padding="0" />
+                <HyperlinkButton NavigateUri="https://github.com/06Games/GeneaGrab" Content="{x:Static strings:UI.Settings_About_SourceCode}" Padding="0" />
             </StackPanel>
         </StackPanel>
     </Grid>

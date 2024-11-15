@@ -11,12 +11,12 @@
        <PackageReference Include="Gedcomx.Model" Version="1.0.6144.20322"/>
        <PackageReference Include="Integrative.CrossProtect" Version="0.1.3"/>
        <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0"/>
-       <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="8.0.6"/>
+       <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.0"/>
      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-     <PackageReference Include="Roman-Numerals" Version="2.0.0" />
-       <PackageReference Include="Serilog" Version="4.0.0"/>
-       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4"/>
-       <PackageReference Include="System.Net.Http.Json" Version="8.0.0"/>
-       <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0"/>
+       <PackageReference Include="Roman-Numerals" Version="2.0.1"/>
+       <PackageReference Include="Serilog" Version="4.1.0"/>
+       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5"/>
+       <PackageReference Include="System.Net.Http.Json" Version="9.0.0"/>
+       <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.0"/>
    </ItemGroup>
 </Project>
