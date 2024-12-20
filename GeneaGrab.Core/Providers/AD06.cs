@@ -91,9 +91,9 @@ public class AD06 : Ligeo
             "FRAD006_REPERTOIRE_NOTAIRES" => ("(?<callnum>.+) +- +(?<title>.+)", new[] { RegistryType.Notarial }),
             "FRAD006_3E" => (@"(?<callnum>3 E [\d ]+?) *- *(?<title>.*)\. *- *(?<from>.*?) *- *(?<to>.*?) *$", new[] { RegistryType.Notarial }), // Notaire
             "FRAD006_C" => (@"(?<callnum>C [\d ]+?) *- *(?<title>.*)\. *- *(?<from>.*?) *- *(?<to>.*?) *$", new[] { RegistryType.Other }), // Archives anciennes
+            "FRAD006_NI" => (@"(?<callnum>NI .+?) *- *(?<title>.*)\. *- *(?<from>.*?) *- *(?<to>.*?) *$", new[] { RegistryType.Other }), // Archives d'État de Turin
             "FRAD006_ARMOIRIES" => ("(?<callnum>.+) +- +(?<title>.+)", new[] { RegistryType.Other }),
             "FRAD006_OUVRAGES" => ("(?<callnum>.+) +- +(?<title>.+)", new[] { RegistryType.Book }),
-            "FRAD006_BN_SOURCES_IMPRIMES" => ("(?<title>.+)", new[] { RegistryType.Book }),
             "FRAD006_ANNUAIRES" => ("(?<title>.+)", new[] { RegistryType.Other }),
             "FRAD006_PRESSE" => (@"(?<title>.+) \(\d*-\d*\), .*? +- +(?<from>(\d|\/)+)(-(?<to>(\d|\/)+))?", new[] { RegistryType.Newspaper }),
             "FRAD006_DELIBERATIONS_CONSEIL_GENERAL" => ("(?<callnum>.+) +- +(?<title>.+) +- +(?<from>.+?)(-(?<to>.+))?$", new[] { RegistryType.Book }),
