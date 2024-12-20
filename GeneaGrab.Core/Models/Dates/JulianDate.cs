@@ -9,9 +9,11 @@ public class JulianDate : Date
     private static readonly JulianCalendar JulianCalendar = new();
 
     public JulianDate(int year, int? month = null, int? day = null, int? hour = null, int? minute = null, int? second = null, Precision precision = Precision.Days)
-        : this(new DateTime(year, month ?? 1, day ?? 1, hour ?? 0, minute ?? 0, second ?? 0, 0, DateTimeKind.Utc), precision) { }
+        : this(new DateTime(year, month ?? 1, day ?? 1, hour ?? 0, minute ?? 0, second ?? 0, 0, JulianCalendar, DateTimeKind.Utc), precision) { }
     public JulianDate(DateTime dt, Precision precision = Precision.Days)
-        : base(new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, JulianCalendar, dt.Kind), precision) { }
+        : base(dt, precision) { }
+
+    private static DateTime GregorianToJulian(DateTime dt) => new(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, JulianCalendar, dt.Kind);
 
     public static bool TryParse(string dateString, out JulianDate date)
     {
@@ -21,8 +23,8 @@ public class JulianDate : Date
         const DateTimeStyles style = DateTimeStyles.AssumeLocal;
 
         if (string.IsNullOrWhiteSpace(dateString)) return false;
-        if (DateTime.TryParse(dateString, culture, style, out var d)) date = new JulianDate(d);
-        else if (DateTime.TryParseExact(dateString, "yyyy", culture, style, out d)) date = new JulianDate(d, Precision.Years);
+        if (DateTime.TryParse(dateString, culture, style, out var d)) date = new JulianDate(GregorianToJulian(d));
+        else if (DateTime.TryParseExact(dateString, "yyyy", culture, style, out d)) date = new JulianDate(GregorianToJulian(d), Precision.Years);
         else return false;
         return true;
     }
